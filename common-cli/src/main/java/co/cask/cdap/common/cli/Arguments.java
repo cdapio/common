@@ -16,11 +16,11 @@
 
 package co.cask.cdap.common.cli;
 
-import co.cask.cdap.common.cli.exception.MissingArgumentException;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Convenience class to represent a set of arguments contained within user input.
@@ -53,10 +53,17 @@ public class Arguments {
 
   /**
    * @param key the argument name
-   * @return the argument value
-   * @throws MissingArgumentException if the argument value is missing
+   * @return true if there is a value associated with the argument name
    */
-  public String get(String key) throws MissingArgumentException {
+  public boolean hasArgument(String key) {
+    return arguments.containsKey(key);
+  }
+
+  /**
+   * @param key the argument name
+   * @return the argument value
+   */
+  public String get(String key) {
     checkRequiredArgument(key);
     return arguments.get(key);
   }
@@ -76,9 +83,8 @@ public class Arguments {
    *
    * @param key the argument name
    * @return the argument value
-   * @throws MissingArgumentException if the argument value is missing
    */
-  public int getInt(String key) throws MissingArgumentException {
+  public int getInt(String key) {
     checkRequiredArgument(key);
     return Integer.parseInt(arguments.get(key));
   }
@@ -104,9 +110,8 @@ public class Arguments {
    *
    * @param key the argument name
    * @return the argument value
-   * @throws MissingArgumentException if the argument value is missing
    */
-  public Long getLong(String key) throws MissingArgumentException {
+  public Long getLong(String key) {
     checkRequiredArgument(key);
     return Long.parseLong(arguments.get(key));
   }
@@ -127,9 +132,9 @@ public class Arguments {
     }
   }
 
-  private void checkRequiredArgument(String key) throws MissingArgumentException {
+  private void checkRequiredArgument(String key) {
     if (!arguments.containsKey(key)) {
-      throw new MissingArgumentException("Missing required argument: " + key);
+      throw new NoSuchElementException("Missing required argument: " + key);
     }
   }
 }

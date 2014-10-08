@@ -16,6 +16,8 @@
 
 package co.cask.cdap.common.cli.internal;
 
+import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +35,7 @@ public class TreeNode<T> {
   public TreeNode(T data, TreeNode<T> parent) {
     this.data = data;
     this.parent = parent;
-    this.children = new ArrayList<TreeNode<T>>();
+    this.children = Lists.newArrayList();
   }
 
   public TreeNode() {
