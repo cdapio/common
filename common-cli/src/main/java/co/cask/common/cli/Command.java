@@ -14,7 +14,7 @@
  * the License.
  */
 
-package co.cask.cdap.common.cli;
+package co.cask.common.cli;
 
 import java.io.PrintStream;
 
