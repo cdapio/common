@@ -20,6 +20,8 @@ import co.cask.common.cli.completers.DefaultStringsCompleter;
 import co.cask.common.cli.completers.PrefixCompleter;
 import co.cask.common.cli.internal.TreeNode;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import jline.console.ConsoleReader;
 import jline.console.UserInterruptException;
@@ -63,6 +65,14 @@ public class CLI<T extends Command> {
     this.completers = new CompleterSet(completers);
     this.reader = new ConsoleReader();
     this.reader.setPrompt("cli> ");
+  }
+
+  /**
+   * @param commands the commands to use
+   * @throws IOException if unable to construct the {@link ConsoleReader}.
+   */
+  public CLI(T... commands) throws IOException {
+    this(ImmutableList.copyOf(commands), ImmutableMap.<String, Completer>of());
   }
 
   /**
