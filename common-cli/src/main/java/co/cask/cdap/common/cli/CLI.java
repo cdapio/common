@@ -44,6 +44,8 @@ import java.util.Map;
  * then when the user enters "start flow" and then hits TAB, the completer will be activated to provide
  * auto-completion.
  * </p>
+ *
+ * @param <T> type of {@link Command} that this {@link CLI} will use
  */
 public class CLI<T extends Command> {
 
