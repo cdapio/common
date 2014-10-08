@@ -14,11 +14,11 @@
  * the License.
  */
 
-package co.cask.cdap.common.cli;
+package co.cask.common.cli;
 
-import co.cask.cdap.common.cli.completers.DefaultStringsCompleter;
-import co.cask.cdap.common.cli.completers.PrefixCompleter;
-import co.cask.cdap.common.cli.internal.TreeNode;
+import co.cask.common.cli.completers.DefaultStringsCompleter;
+import co.cask.common.cli.completers.PrefixCompleter;
+import co.cask.common.cli.internal.TreeNode;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import jline.console.ConsoleReader;

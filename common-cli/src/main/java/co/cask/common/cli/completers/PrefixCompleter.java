@@ -14,7 +14,7 @@
  * the License.
  */
 
-package co.cask.cdap.common.cli.completers;
+package co.cask.common.cli.completers;
 
 import com.google.common.collect.Lists;
 import jline.console.completer.Completer;

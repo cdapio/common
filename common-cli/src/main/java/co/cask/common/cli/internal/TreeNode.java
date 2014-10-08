@@ -14,7 +14,7 @@
  * the License.
  */
 
-package co.cask.cdap.common.cli.internal;
+package co.cask.common.cli.internal;
 
 import com.google.common.collect.Lists;
 
