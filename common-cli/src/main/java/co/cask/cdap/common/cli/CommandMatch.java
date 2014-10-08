@@ -26,15 +26,25 @@ public final class CommandMatch {
   private final Command command;
   private final String input;
 
+  /**
+   * @param command the {@link Command} that was matched to the {@link #input}
+   * @param input the input that was provided
+   */
   public CommandMatch(Command command, String input) {
     this.command = command;
     this.input = input;
   }
 
+  /**
+   * @return the {@link Command} that was matched to the {@link #input}
+   */
   public Command getCommand() {
     return command;
   }
 
+  /**
+   * @return the {@link Arguments} parsed from the {@link #input} and {@link #command} pattern
+   */
   public Arguments getArguments() {
     return parseArguments(input, command.getPattern());
   }

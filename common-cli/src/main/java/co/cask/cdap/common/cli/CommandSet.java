@@ -30,15 +30,25 @@ public class CommandSet<T extends Command> implements Iterable<T> {
   private final List<T> commands;
   private final List<CommandSet<T>> commandSets;
 
+  /**
+   * @param commands commands to include
+   * @param commandSets command sets to include
+   */
   public CommandSet(Iterable<T> commands, Iterable<CommandSet<T>> commandSets) {
     this.commands = ImmutableList.copyOf(commands);
     this.commandSets = ImmutableList.copyOf(commandSets);
   }
 
+  /**
+   * @param commands commands to include
+   */
   public CommandSet(Iterable<T> commands) {
     this(commands, ImmutableList.<CommandSet<T>>of());
   }
 
+  /**
+   * @return {@link Iterator} over the {@link #commands} and the {@link Command}s within the {@link #commandSets}
+   */
   public Iterator<T> iterator() {
     return Iterables.concat(commands, Iterables.concat(commandSets)).iterator();
   }

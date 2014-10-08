@@ -29,6 +29,7 @@ import jline.console.completer.Completer;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Provides a command-line interface (CLI) with auto-completion,
@@ -40,13 +41,30 @@ public class CLI<T extends Command> {
   private final CompleterSet completers;
   private final ConsoleReader reader;
 
-  public CLI(Iterable<T> commands, CompleterSet completers) throws IOException {
+  /**
+   * @param commands the commands to use
+   * @param completers the completers to use
+   * @throws IOException if unable to construct the {@link ConsoleReader}.
+   */
+  public CLI(Iterable<T> commands, Map<String, Completer> completers) throws IOException {
     this.commands = new CommandSet<T>(commands);
-    this.completers = completers;
+    this.completers = new CompleterSet(completers);
     this.reader = new ConsoleReader();
     this.reader.setPrompt("cli> ");
   }
 
+  /**
+   * Starts the CLI given command-line arguments.
+   *
+   * If no arguments are given, the CLI is started in interactive mode
+   * (e.g. user may enter in multiple commands). If arguments are given,
+   * the arguments are treated as a command, and the CLI executes the single
+   * command that is given.
+   *
+   * @param args the arguments
+   * @param output the {@link PrintStream} to write messages to
+   * @throws IOException if there's an issue in reading the input
+   */
   public void run(String[] args, PrintStream output) throws IOException {
     if (args.length == 0) {
       startInteractiveMode(output);
@@ -55,11 +73,20 @@ public class CLI<T extends Command> {
     }
   }
 
+  /**
+   * @return the {@link ConsoleReader} that is being used to read input.
+   */
   public ConsoleReader getReader() {
     return reader;
   }
 
-  private void execute(String input, PrintStream output) {
+  /**
+   * Executes a command given some input.
+   *
+   * @param input the input
+   * @param output the {@link PrintStream} to write messages to
+   */
+  public void execute(String input, PrintStream output) {
     CommandMatch match = commands.findMatch(input);
     try {
       match.getCommand().execute(match.getArguments(), output);
@@ -69,12 +96,12 @@ public class CLI<T extends Command> {
   }
 
   /**
-   * Starts interactive mode, which provides a shell to enter multiple commands and use autocompletion.
+   * Starts interactive mode, which provides a shell to enter multiple commands and use auto-completion.
    *
    * @param output {@link java.io.PrintStream} to write to
    * @throws java.io.IOException if there's an issue in reading the input
    */
-  private void startInteractiveMode(PrintStream output) throws IOException {
+  public void startInteractiveMode(PrintStream output) throws IOException {
     this.reader.setHandleUserInterrupt(true);
 
     List<Completer> completerList = generateCompleters();
