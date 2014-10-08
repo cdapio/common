@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Set of {@link Command}s.
  */
-public class CommandSet<T extends Command> implements Iterable<T> {
+public final class CommandSet<T extends Command> implements Iterable<T> {
 
   private final List<T> commands;
   private final List<CommandSet<T>> commandSets;

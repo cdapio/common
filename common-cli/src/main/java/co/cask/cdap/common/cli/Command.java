@@ -32,19 +32,37 @@ public interface Command {
    * @param output {@link java.io.PrintStream} to write output to
    * @throws Exception if something went wrong
    */
-  public void execute(Arguments arguments, PrintStream output) throws Exception;
+  void execute(Arguments arguments, PrintStream output) throws Exception;
 
   /**
+   * <p>
+   * The pattern which is matched against the user input.
+   * May contain required and optional arguments.
+   * </p>
+   *
+   * <p>
+   * Required arguments are in the form: {@code <argument-name>}<br/>
+   * Optional arguments are in the form: {@code [argument-name]}
+   * </p>
+   *
+   * <p>
+   * For example, both the user input "create blog sdf" and "create blog sdf bob"
+   * would activate this command if the pattern were "create blog <blog-name> [owner-name]".
+   * </p>
+   *
+   * <p>
+   * Then, in {@link #execute(Arguments, java.io.PrintStream)}, the values of the "blog-name" and "owner-name"
+   * arguments may be retrieved via {@code Arguments.get("blog-name")} and
+   * {@code Arguments.get("owner-name", "Default Owner")}.
+   * </p>
+   *
    * @return input pattern that activates this {@link Command}.
-   * May contain required and optional arguments. For example,
-   * an input of "create blog sdf" would activate this command if
-   * the pattern were "create blog <blog-name>".
    */
-  public String getPattern();
+  String getPattern();
 
   /**
    * @return short descriptive text describing what this {@link Command} does
    */
-  public String getDescription();
+  String getDescription();
 
 }

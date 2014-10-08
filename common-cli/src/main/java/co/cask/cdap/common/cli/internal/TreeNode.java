@@ -27,7 +27,7 @@ import java.util.List;
 public class TreeNode<T> {
 
   private final T data;
-  private final List<TreeNode<T>> children;
+  private final ArrayList<TreeNode<T>> children;
   private final TreeNode<T> parent;
 
   public TreeNode(T data, TreeNode<T> parent) {
@@ -40,9 +40,15 @@ public class TreeNode<T> {
     this(null, null);
   }
 
-  public TreeNode<T> findChild(T child) {
+  /**
+   * Finds a child node.
+   *
+   * @param childData the child to find
+   * @return the child node with the data that equals childData
+   */
+  public TreeNode<T> findChild(T childData) {
     for (TreeNode<T> candidate : children) {
-      if (child.equals(candidate)) {
+      if (childData.equals(candidate.data)) {
         return candidate;
       }
     }
@@ -51,24 +57,22 @@ public class TreeNode<T> {
 
   /**
    * Finds a child node, and if it doesn't exist yet, create it before returning.
-   * @param child
-   * @return
+   * @param childData the child to find
+   * @return the child node with the data that equals childData
    */
-  public TreeNode<T> findOrCreateChild(T child) {
+  public TreeNode<T> findOrCreateChild(T childData) {
     for (TreeNode<T> candidate : children) {
-      if (child.equals(candidate)) {
+      if (childData.equals(candidate.data)) {
         return candidate;
       }
     }
-    return addChild(child);
+    return addChild(childData);
   }
 
   public TreeNode<T> addChild(T data) {
     TreeNode<T> result = new TreeNode<T>(data, this);
-    if (children.add(result)) {
-      return result;
-    }
-    return null;
+    children.add(result);
+    return result;
   }
 
   public T getData() {

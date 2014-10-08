@@ -32,8 +32,18 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * <p>
  * Provides a command-line interface (CLI) with auto-completion,
  * interactive and non-interactive modes, and other typical shell features.
+ * </p>
+ *
+ * <p>
+ * {@link #commands} contains all of the available commands, and {@link #completers}
+ * contains the available completers per argument type. For example, if we have a command
+ * with the pattern "start flow <flow-id>" and a completer keyed by "flow-id", then when
+ * the user enters "start flow" and then hits TAB, the completer will be activated to provide
+ * auto-completion.
+ * </p>
  */
 public class CLI<T extends Command> {
 
