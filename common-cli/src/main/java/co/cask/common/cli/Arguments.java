@@ -45,6 +45,15 @@ public class Arguments {
   }
 
   /**
+   * Returns the number of arguments in this {@code Arguments} object
+   *
+   * @return the number of arguments
+   */
+  public int size() {
+    return arguments.size();
+  }
+
+  /**
    * @return the raw user input
    */
   public String getRawInput() {

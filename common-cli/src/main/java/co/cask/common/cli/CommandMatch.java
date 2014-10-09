@@ -25,6 +25,11 @@ import java.util.Comparator;
  * Represents an input matching for a command and provided arguments.
  */
 public final class CommandMatch {
+  
+  private static final String MANDATORY_ARG_BEGINNING = "<";
+  private static final String MANDATORY_ARG_ENDING = ">";
+  private static final String OPTIONAL_PART_BEGINNING = "[";
+  private static final String OPTIONAL_PART_ENDING = "]";
 
   private final Command command;
   private final String input;
@@ -58,12 +63,12 @@ public final class CommandMatch {
 
   private Arguments parseArguments(String input, String pattern) {
     ImmutableMap.Builder<String, String> args = ImmutableMap.builder();
-    int mandatoryEnd = pattern.indexOf("[");
+    int mandatoryEnd = pattern.indexOf(OPTIONAL_PART_BEGINNING);
     mandatoryEnd = mandatoryEnd > 0 ? mandatoryEnd : pattern.length();
     String mandatoryPatternPart = pattern.substring(0, mandatoryEnd);
     boolean isFullPattern = mandatoryEnd == pattern.length();
     int currentIndex;
-    if (mandatoryPatternPart.contains("<")) {
+    if (mandatoryPatternPart.contains(MANDATORY_ARG_BEGINNING)) {
       currentIndex = parseArgs(args, input, mandatoryPatternPart, isFullPattern);
     } else {
       currentIndex = mandatoryEnd;
@@ -73,37 +78,44 @@ public final class CommandMatch {
     }
 
     String rawOptionalPatternPart = pattern.substring(mandatoryEnd);
-    rawOptionalPatternPart = rawOptionalPatternPart.replace("[", "");
-    String[] rawOptionalArgs = rawOptionalPatternPart.split("]");
+    rawOptionalPatternPart = rawOptionalPatternPart.replace(OPTIONAL_PART_BEGINNING, "");
+    String[] rawOptionalArgs = rawOptionalPatternPart.split(OPTIONAL_PART_ENDING);
+
     String optionalPatternPart = sortAndFilter(input.substring(currentIndex), rawOptionalArgs);
-    if (mandatoryPatternPart.lastIndexOf(">") == mandatoryPatternPart.length() - 1) {
-      int optionalPartFirstArgStart = optionalPatternPart.indexOf("<");
-      optionalPartFirstArgStart = optionalPartFirstArgStart > 0 ? optionalPartFirstArgStart :
-        optionalPatternPart.length();
-      String lastMandatoryValue;
-      if (optionalPartFirstArgStart != 0) {
-        lastMandatoryValue = input.substring(currentIndex, input.indexOf(
-          optionalPatternPart.substring(0, optionalPartFirstArgStart), currentIndex));
-      } else {
-        lastMandatoryValue = input.substring(currentIndex);
-      }
-      args.put(mandatoryPatternPart.substring(mandatoryPatternPart.lastIndexOf("<") + 1,
-                                              mandatoryPatternPart.lastIndexOf(">")), lastMandatoryValue);
+
+    if (mandatoryPatternPart.lastIndexOf(MANDATORY_ARG_ENDING) == mandatoryPatternPart.length() - 1) {
+      String lastMandatoryValue = getLastMandatoryArgument(input, currentIndex, optionalPatternPart);
+      args.put(mandatoryPatternPart.substring(mandatoryPatternPart.lastIndexOf(MANDATORY_ARG_BEGINNING) + 1,
+                                              mandatoryPatternPart.lastIndexOf(MANDATORY_ARG_ENDING)),
+               lastMandatoryValue);
       currentIndex += lastMandatoryValue.length();
     }
-    if (optionalPatternPart.contains("<")) {
+    if (optionalPatternPart.contains(MANDATORY_ARG_BEGINNING)) {
       parseArgs(args, input.substring(currentIndex), optionalPatternPart, true);
     }
     return new Arguments(args.build(), input);
   }
 
+  private String getLastMandatoryArgument(String input, int currentIndex, String optionalPatternPart) {
+    int optionalPartFirstArgStart = optionalPatternPart.indexOf(MANDATORY_ARG_BEGINNING);
+    optionalPartFirstArgStart = optionalPartFirstArgStart > 0 ? optionalPartFirstArgStart :
+      optionalPatternPart.length();
+
+    if (optionalPartFirstArgStart != 0) {
+      return input.substring(currentIndex, input.indexOf(
+        optionalPatternPart.substring(0, optionalPartFirstArgStart), currentIndex));
+    } else {
+      return input.substring(currentIndex);
+    }
+  }
+
   private int parseArgs(ImmutableMap.Builder<String, String> args, String input,
                     String pattern, boolean isFullPattern) {
-    String[] patternArgs = pattern.split(">");
+    String[] patternArgs = pattern.split(MANDATORY_ARG_ENDING);
     int currentIndex = 0;
     for (int i = 0; i < patternArgs.length - 1; i++) {
-      String[] currentOption = patternArgs[i].split("<");
-      String[] nextOption = patternArgs[i + 1].split("<");
+      String[] currentOption = patternArgs[i].split(MANDATORY_ARG_BEGINNING);
+      String[] nextOption = patternArgs[i + 1].split(MANDATORY_ARG_BEGINNING);
       if (!input.startsWith(currentOption[0], currentIndex)) {
         throw new IllegalArgumentException("Expected format: " + command.getPattern());
       }
@@ -116,12 +128,12 @@ public final class CommandMatch {
       args.put(currentOption[1], value);
       currentIndex += value.length();
     }
-    currentIndex += patternArgs[patternArgs.length - 1].split("<")[0].length();
+    currentIndex += patternArgs[patternArgs.length - 1].split(MANDATORY_ARG_BEGINNING)[0].length();
     if (isFullPattern) {
       if (currentIndex == input.length()) {
         throw new IllegalArgumentException("Expected format: " + command.getPattern());
       }
-      args.put(patternArgs[patternArgs.length - 1].split("<")[1], input.substring(currentIndex));
+      args.put(patternArgs[patternArgs.length - 1].split(MANDATORY_ARG_BEGINNING)[1], input.substring(currentIndex));
     }
     return currentIndex;
   }
@@ -133,11 +145,11 @@ public final class CommandMatch {
 
       @Override
       public int compare(String arg1, String arg2) {
-        int arg2Length = input.indexOf(arg2.split("<")[0]);
+        int arg2Length = input.indexOf(arg2.split(MANDATORY_ARG_BEGINNING)[0]);
         if (arg2Length == -1) {
           return -1;
         }
-        int arg1Length = input.indexOf(arg1.split("<")[0]);
+        int arg1Length = input.indexOf(arg1.split(MANDATORY_ARG_BEGINNING)[0]);
         if (arg1Length == -1) {
           return 1;
         }
@@ -146,7 +158,7 @@ public final class CommandMatch {
     });
     StringBuilder builder = new StringBuilder();
     for (String arg : argsCopy) {
-      if (!input.contains(arg.split("<")[0])) {
+      if (!input.contains(arg.split(MANDATORY_ARG_BEGINNING)[0])) {
         break;
       }
       builder.append(arg);

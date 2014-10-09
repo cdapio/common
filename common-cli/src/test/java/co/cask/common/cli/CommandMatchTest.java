@@ -65,10 +65,7 @@ public class CommandMatchTest {
       .append(OPTIONAL_ARG).toString();
     CommandMatch commandMatch = new CommandMatch(TEST_COMMAND, testInput);
     Arguments args = commandMatch.getArguments();
-    Field field = args.getClass().getDeclaredField("arguments");
-    field.setAccessible(true);
-    Map<String, String> arguments = (Map<String, String>) field.get(args);
-    Assert.assertEquals(5, arguments.size());
+    Assert.assertEquals(5, args.size());
     Assert.assertEquals(NAME, args.get("name"));
     Assert.assertEquals(TEMPLATE, args.get("template"));
     Assert.assertEquals(SIZE, args.getInt("size"));
@@ -88,10 +85,7 @@ public class CommandMatchTest {
       .append(OPTIONAL_ARG).toString();
     CommandMatch commandMatch = new CommandMatch(TEST_COMMAND, testInput);
     Arguments args = commandMatch.getArguments();
-    Field field = args.getClass().getDeclaredField("arguments");
-    field.setAccessible(true);
-    Map<String, String> arguments = (Map<String, String>) field.get(args);
-    Assert.assertEquals(4, arguments.size());
+    Assert.assertEquals(4, args.size());
     Assert.assertEquals(NAME, args.get("name"));
     Assert.assertEquals(TEMPLATE, args.get("template"));
     Assert.assertEquals(SIZE, args.getInt("size"));
@@ -108,10 +102,7 @@ public class CommandMatchTest {
       .append(SIZE).toString();
     CommandMatch commandMatch = new CommandMatch(TEST_COMMAND, testInput);
     Arguments args = commandMatch.getArguments();
-    Field field = args.getClass().getDeclaredField("arguments");
-    field.setAccessible(true);
-    Map<String, String> arguments = (Map<String, String>) field.get(args);
-    Assert.assertEquals(3, arguments.size());
+    Assert.assertEquals(3, args.size());
     Assert.assertEquals(NAME, args.get("name"));
     Assert.assertEquals(TEMPLATE, args.get("template"));
     Assert.assertEquals(SIZE, args.getInt("size"));
