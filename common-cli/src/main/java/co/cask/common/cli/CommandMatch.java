@@ -52,28 +52,48 @@ public final class CommandMatch {
     return parseArguments(input, command.getPattern());
   }
 
+  public String getInput() {
+    return input;
+  }
+
   private Arguments parseArguments(String input, String pattern) {
     ImmutableMap.Builder<String, String> args = ImmutableMap.builder();
     int mandatoryEnd = pattern.indexOf("[");
     mandatoryEnd = mandatoryEnd > 0 ? mandatoryEnd : pattern.length();
-    String mandatoryPatternPart = pattern.substring(0, mandatoryEnd).trim();
+    String mandatoryPatternPart = pattern.substring(0, mandatoryEnd);
     boolean isFullPattern = mandatoryEnd == pattern.length();
-    int currentIndex = parseArgs(args, input, mandatoryPatternPart, isFullPattern);
+    int currentIndex;
+    if (mandatoryPatternPart.contains("<")) {
+      currentIndex = parseArgs(args, input, mandatoryPatternPart, isFullPattern);
+    } else {
+      currentIndex = mandatoryEnd;
+    }
     if (isFullPattern) {
       return new Arguments(args.build(), input);
     }
 
-    String rawOptionalPatternPart = pattern.substring(mandatoryEnd).trim();
+    String rawOptionalPatternPart = pattern.substring(mandatoryEnd);
     rawOptionalPatternPart = rawOptionalPatternPart.replace("[", "");
     String[] rawOptionalArgs = rawOptionalPatternPart.split("]");
     String optionalPatternPart = sortAndFilter(input.substring(currentIndex), rawOptionalArgs);
-    String lastMandatoryValue = input.substring(currentIndex, input.indexOf(
-      optionalPatternPart.substring(0, optionalPatternPart.indexOf("<")), currentIndex));
-    args.put(mandatoryPatternPart.substring(mandatoryPatternPart.lastIndexOf("<") + 1,
-                                            mandatoryPatternPart.lastIndexOf(">")), lastMandatoryValue);
-
-    currentIndex += lastMandatoryValue.length();
-    parseArgs(args, input.substring(currentIndex), optionalPatternPart, true);
+    if (mandatoryPatternPart.lastIndexOf(">") == mandatoryPatternPart.length() - 1) {
+      int optionalPartFirstArgStart = optionalPatternPart.indexOf("<");
+      optionalPartFirstArgStart = optionalPartFirstArgStart > 0 ? optionalPartFirstArgStart :
+        optionalPatternPart.length();
+      String lastMandatoryValue;
+      if (optionalPartFirstArgStart != 0) {
+        lastMandatoryValue = input.substring(currentIndex, input.indexOf(
+          optionalPatternPart.substring(0, optionalPartFirstArgStart), currentIndex));
+      } else {
+        lastMandatoryValue = input.substring(currentIndex);
+      }
+      args.put(mandatoryPatternPart.substring(mandatoryPatternPart.lastIndexOf("<") + 1,
+                                              mandatoryPatternPart.lastIndexOf(">")), lastMandatoryValue);
+      currentIndex += lastMandatoryValue.length();
+    }
+    if (optionalPatternPart.contains("<")) {
+      parseArgs(args, input.substring(currentIndex), optionalPatternPart, true);
+    }
     return new Arguments(args.build(), input);
   }
 

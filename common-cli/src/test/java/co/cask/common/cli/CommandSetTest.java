@@ -72,7 +72,7 @@ public class CommandSetTest {
 
       @Override
       public String getPattern() {
-        return "greet <user> <times>";
+        return "greet <user> times <times>";
       }
 
       @Override
@@ -82,7 +82,7 @@ public class CommandSetTest {
     };
 
     CommandSet commandSet = new CommandSet<Command>(ImmutableList.of(greetCommand));
-    CommandMatch match = commandSet.findMatch("greet bob 5");
+    CommandMatch match = commandSet.findMatch("greet bob times 5");
     Assert.assertTrue(match.getCommand() == greetCommand);
     testCommand(match.getCommand(), match.getArguments(), Strings.repeat("Hello bob\n", 5));
   }
@@ -100,7 +100,7 @@ public class CommandSetTest {
 
       @Override
       public String getPattern() {
-        return "greet <user> <times> [timestamp] [suffix]";
+        return "greet <user> times <times>[ timestamp <timestamp>][ suffix <suffix>]";
       }
 
       @Override
@@ -110,13 +110,14 @@ public class CommandSetTest {
     };
 
     CommandSet commandSet = new CommandSet<Command>(ImmutableList.of(greetCommand));
-    CommandMatch match = commandSet.findMatch("greet bob 5 123 blah");
+    CommandMatch match = commandSet.findMatch("greet bob times 5 timestamp 123 suffix blah");
     Assert.assertTrue(match.getCommand() == greetCommand);
     testCommand(match.getCommand(), match.getArguments(), Strings.repeat("[123] Hello bob blah\n", 5));
 
-    match = commandSet.findMatch("greet bob 5");
+    match = commandSet.findMatch("greet bob times 5");
     Assert.assertTrue(match.getCommand() == greetCommand);
-    testCommand(match.getCommand(), match.getArguments(), Strings.repeat("[111] Hello bob oneoneone\n", 5));
+    Arguments a = match.getArguments();
+    testCommand(match.getCommand(), a, Strings.repeat("[111] Hello bob oneoneone\n", 5));
   }
 
   private void testCommand(Command command, Arguments args, String expectedOutput) throws Exception {
