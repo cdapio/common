@@ -54,7 +54,7 @@ public final class CommandMatch {
    * @return the {@link Arguments} parsed from the {@link #input} and {@link #command} pattern
    */
   public Arguments getArguments() {
-    return parseArguments(input, command.getPattern());
+    return parseArguments(input.trim(), command.getPattern());
   }
 
   public String getInput() {
