@@ -16,7 +16,9 @@
 
 package co.cask.common.cli;
 
+import co.cask.common.cli.exception.InvalidCommandException;
 import com.google.common.base.Charsets;
+import com.google.common.base.Function;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
@@ -24,6 +26,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.concurrent.Callable;
 
 /**
  * Test for {@link CommandSet}.
@@ -49,15 +52,59 @@ public class CommandSetTest {
       }
     };
 
-    CommandSet commandSet = new CommandSet<Command>(ImmutableList.of(greetCommand));
+    final CommandSet commandSet = new CommandSet<Command>(ImmutableList.of(greetCommand));
     CommandMatch match = commandSet.findMatch("truncate all streams");
     Assert.assertTrue(match.getCommand() == greetCommand);
     testCommand(match.getCommand(), match.getArguments(), "truncated!\n");
 
-    Assert.assertNull(commandSet.findMatch("truncate all streams!"));
-    Assert.assertNull(commandSet.findMatch("truncate no streams"));
-    Assert.assertNull(commandSet.findMatch("truncate all streams x"));
-    Assert.assertNull(commandSet.findMatch("x truncate all streams"));
+    Function<Exception, Void> invalidCommandValidator = new Function<Exception, Void>() {
+      @Override
+      public Void apply(Exception input) {
+        Assert.assertTrue(input instanceof InvalidCommandException);
+        return null;
+      }
+    };
+
+    assertThrows(new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        commandSet.findMatch("truncate all streams!");
+        return null;
+      }
+    }, invalidCommandValidator);
+
+    assertThrows(new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        commandSet.findMatch("truncate no streams");
+        return null;
+      }
+    }, invalidCommandValidator);
+
+    assertThrows(new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        commandSet.findMatch("truncate all streams x");
+        return null;
+      }
+    }, invalidCommandValidator);
+
+    assertThrows(new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        commandSet.findMatch("x truncate all streams");
+        return null;
+      }
+    }, invalidCommandValidator);
+  }
+
+  private void assertThrows(Callable<Void> callable, Function<Exception, Void> exceptionValidator) {
+    try {
+      callable.call();
+      Assert.fail();
+    } catch (Exception e) {
+      exceptionValidator.apply(e);
+    }
   }
 
   @Test
