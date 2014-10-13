@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @param <T> type of {@link Command} that this {@link CommandSet} will contain.
  */
-public final class CommandSet<T extends Command> implements Iterable<T> {
+public class CommandSet<T extends Command> implements Iterable<T> {
 
   private final List<T> commands;
   private final List<CommandSet<T>> commandSets;
