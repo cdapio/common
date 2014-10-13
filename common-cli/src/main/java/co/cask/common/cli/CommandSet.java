@@ -16,6 +16,7 @@
 
 package co.cask.common.cli;
 
+import co.cask.common.cli.exception.InvalidCommandException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
@@ -61,7 +62,7 @@ public class CommandSet<T extends Command> implements Iterable<T> {
    * @param input the input string
    * @return the matching command and the parsed arguments
    */
-  public CommandMatch findMatch(String input) {
+  public CommandMatch findMatch(String input) throws InvalidCommandException {
     for (Command command : this) {
       String pattern = command.getPattern();
 
@@ -79,6 +80,10 @@ public class CommandSet<T extends Command> implements Iterable<T> {
       }
     }
 
-    return null;
+    throw new InvalidCommandException(input);
+  }
+
+  public Iterable<T> getCommands() {
+    return Iterables.concat(commands, Iterables.concat(commandSets));
   }
 }

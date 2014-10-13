@@ -18,8 +18,9 @@ package co.cask.common.cli;
 
 import co.cask.common.cli.completers.DefaultStringsCompleter;
 import co.cask.common.cli.completers.PrefixCompleter;
+import co.cask.common.cli.exception.CLIExceptionHandler;
+import co.cask.common.cli.exception.InvalidCommandException;
 import co.cask.common.cli.internal.TreeNode;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import jline.console.ConsoleReader;
 import jline.console.UserInterruptException;
@@ -53,6 +54,13 @@ public class CLI<T extends Command> {
   private final CompleterSet completers;
   private final ConsoleReader reader;
 
+  private CLIExceptionHandler<Exception> exceptionHandler = new CLIExceptionHandler<Exception>() {
+    @Override
+    public void handleException(PrintStream output, Exception exception) {
+      output.println("Error: " + exception.getMessage());
+    }
+  };
+
   /**
    * @param commands the commands to use
    * @param completers the completers to use
@@ -63,26 +71,6 @@ public class CLI<T extends Command> {
     this.completers = new CompleterSet(completers);
     this.reader = new ConsoleReader();
     this.reader.setPrompt("cli> ");
-  }
-
-  /**
-   * Starts the CLI given command-line arguments.
-   *
-   * If no arguments are given, the CLI is started in interactive mode
-   * (e.g. user may enter in multiple commands). If arguments are given,
-   * the arguments are treated as a command, and the CLI executes the single
-   * command that is given.
-   *
-   * @param args the arguments
-   * @param output the {@link PrintStream} to write messages to
-   * @throws IOException if there's an issue in reading the input
-   */
-  public void run(String[] args, PrintStream output) throws IOException {
-    if (args.length == 0) {
-      startInteractiveMode(output);
-    } else {
-      execute(Joiner.on(" ").join(args), output);
-    }
   }
 
   /**
@@ -98,12 +86,12 @@ public class CLI<T extends Command> {
    * @param input the input
    * @param output the {@link PrintStream} to write messages to
    */
-  public void execute(String input, PrintStream output) {
+  public void execute(String input, PrintStream output) throws InvalidCommandException {
     CommandMatch match = commands.findMatch(input);
     try {
       match.getCommand().execute(match.getArguments(), output);
     } catch (Exception e) {
-      output.println("Error: " + e.getMessage());
+      exceptionHandler.handleException(output, e);
     }
   }
 
@@ -140,11 +128,15 @@ public class CLI<T extends Command> {
         try {
           execute(command, output);
         } catch (Exception e) {
-          output.println("Error: " + e.getMessage());
+          exceptionHandler.handleException(output, e);
         }
         output.println();
       }
     }
+  }
+
+  public void setExceptionHandler(CLIExceptionHandler<Exception> exceptionHandler) {
+    this.exceptionHandler = exceptionHandler;
   }
 
   private List<Completer> generateCompleters() {
