@@ -51,6 +51,6 @@ the `EchoCommand` command and pass "hello" as the argument value for the "some-i
 
 ## Examples
 
-* [HelloCLI](src/main/test/co/cask/cdap/common/cli/HelloCLI.java): the simple example presented above
-* [NoteCLI](src/main/test/co/cask/cdap/common/cli/NoteCLI.java): notetaking CLI that demonstrates usage of multiple commands and completers
+* [HelloCLI](src/main/java/co/cask/common/cli/examples/HelloCLI.java): the simple example presented above
+* [NoteCLI](src/main/java/co/cask/common/cli/examples/NoteCLI.java): notetaking CLI that demonstrates usage of multiple commands and completers
 
