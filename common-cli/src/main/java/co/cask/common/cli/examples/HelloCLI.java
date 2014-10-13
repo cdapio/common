@@ -30,7 +30,7 @@ public class HelloCLI {
 
   public static void main(String[] args) throws IOException {
     CLI cli = new CLI<Command>(new EchoCommand());
-    cli.run(args, System.out);
+    cli.startInteractiveMode(System.out);
   }
 
   /**

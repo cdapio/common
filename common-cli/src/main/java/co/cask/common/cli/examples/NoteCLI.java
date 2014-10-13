@@ -40,7 +40,7 @@ public class NoteCLI {
 
   private Map<String, String> notes = Maps.newHashMap();
 
-  public NoteCLI(String[] args) throws IOException {
+  public NoteCLI() throws IOException {
     List<Command> commands = ImmutableList.of(
       new GetCommand(),
       new CreateCommand(),
@@ -57,7 +57,7 @@ public class NoteCLI {
     );
 
     CLI cli = new CLI<Command>(commands, completers);
-    cli.run(args, System.out);
+    cli.startInteractiveMode(System.out);
   }
 
   /**
@@ -164,7 +164,7 @@ public class NoteCLI {
   }
 
   public static void main(String[] args) throws IOException {
-    new NoteCLI(args);
+    new NoteCLI();
   }
 
 }
