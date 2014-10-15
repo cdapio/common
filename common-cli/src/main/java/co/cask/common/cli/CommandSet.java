@@ -16,6 +16,7 @@
 
 package co.cask.common.cli;
 
+import co.cask.common.cli.exception.InvalidCommandException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
@@ -27,7 +28,7 @@ import java.util.List;
  *
  * @param <T> type of {@link Command} that this {@link CommandSet} will contain.
  */
-public final class CommandSet<T extends Command> implements Iterable<T> {
+public class CommandSet<T extends Command> implements Iterable<T> {
 
   private final List<T> commands;
   private final List<CommandSet<T>> commandSets;
@@ -61,14 +62,19 @@ public final class CommandSet<T extends Command> implements Iterable<T> {
    * @param input the input string
    * @return the matching command and the parsed arguments
    */
-  public CommandMatch findMatch(String input) {
+  public CommandMatch findMatch(String input) throws InvalidCommandException {
     for (Command command : this) {
       String pattern = getMatchPattern(command.getPattern());
       if (input.matches(pattern)) {
         return new CommandMatch(command, input);
       }
     }
-    return null;
+
+    throw new InvalidCommandException(input);
+  }
+
+  public Iterable<T> getCommands() {
+    return Iterables.concat(commands, Iterables.concat(commandSets));
   }
 
   /**
