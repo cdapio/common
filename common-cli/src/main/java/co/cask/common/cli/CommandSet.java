@@ -63,22 +63,22 @@ public final class CommandSet<T extends Command> implements Iterable<T> {
    */
   public CommandMatch findMatch(String input) {
     for (Command command : this) {
-      String pattern = command.getPattern();
-
-      if (pattern.matches(".*<\\S+>.*")) {
-        // if pattern has an argument, check if input startsWith the pattern before first argument
-        String patternPrefix = pattern.substring(0, pattern.indexOf(" <"));
-        if (input.startsWith(patternPrefix)) {
-          return new CommandMatch(command, input);
-        }
-      } else {
-        // if pattern has no argument, the entire input must match
-        if (input.equals(pattern)) {
-          return new CommandMatch(command, input);
-        }
+      String pattern = getMatchPattern(command.getPattern());
+      if (input.matches(pattern)) {
+        return new CommandMatch(command, input);
       }
     }
-
     return null;
+  }
+
+  /**
+   * Convert command pattern to regular expression that matches any input of this command
+   *
+   * @param pattern the command pattern
+   * @return regular expression
+   */
+  private String getMatchPattern(String pattern) {
+    String mandatoryPart = pattern.replaceAll("\\[.+\\]", ".*");
+    return mandatoryPart.replaceAll("<\\S+>", ".+");
   }
 }
