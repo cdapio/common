@@ -16,17 +16,27 @@
 
 package co.cask.common.cli.completers;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
+import java.util.Collection;
+
 /**
- * Test for {@link DefaultStringsCompleter}.
+ * Test for {@link StringsCompleter}.
  */
-public class DefaultStringsCompleterTest extends CompleterTestBase {
+public class StringsCompleterTest extends CompleterTestBase {
 
   @Test
   public void testComplete() {
-    DefaultStringsCompleter completer = new DefaultStringsCompleter(ImmutableList.of("asdf", "asdd", "bdf"));
+    StringsCompleter completer = new StringsCompleter() {
+      @Override
+      protected Supplier<Collection<String>> getStringsSupplier() {
+        return Suppliers.<Collection<String>>ofInstance(ImmutableList.of("asdf", "asdd", "bdf"));
+      }
+    };
+
     testCompleter(completer, "a", 0, ImmutableList.<CharSequence>of("asdf", "asdd"));
     testCompleter(completer, "b", 0, ImmutableList.<CharSequence>of("bdf "));
     testCompleter(completer, "c", 0, ImmutableList.<CharSequence>of());
