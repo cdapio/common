@@ -166,6 +166,52 @@ public class CommandSetTest {
     testCommand(match.getCommand(), match.getArguments(), Strings.repeat("[111] Hello bob oneoneone\n", 5));
   }
 
+  @Test
+  public void testFindMatchSimilarPrefix() throws Exception {
+    Command getClusterCommand = new Command() {
+      @Override
+      public void execute(Arguments arguments, PrintStream output) throws Exception {
+          output.println("get cluster command with id: " + arguments.get("id"));
+      }
+
+      @Override
+      public String getPattern() {
+        return "get cluster <id>";
+      }
+
+      @Override
+      public String getDescription() {
+        return "Gets the cluster";
+      }
+    };
+
+    Command getClusterConfigCommand = new Command() {
+      @Override
+      public void execute(Arguments arguments, PrintStream output) throws Exception {
+        output.println("get cluster config command with id: " + arguments.get("id"));
+      }
+
+      @Override
+      public String getPattern() {
+        return "get cluster-config <id>";
+      }
+
+      @Override
+      public String getDescription() {
+        return "Gets the cluster config";
+      }
+    };
+
+    CommandSet commandSet = new CommandSet<Command>(ImmutableList.of(getClusterCommand, getClusterConfigCommand));
+    CommandMatch match1 = commandSet.findMatch("get cluster test1");
+    Assert.assertTrue(match1.getCommand() == getClusterCommand);
+    testCommand(match1.getCommand(), match1.getArguments(), "get cluster command with id: test1\n");
+
+    CommandMatch match2 = commandSet.findMatch("get cluster-config test2");
+    Assert.assertTrue(match2.getCommand() == getClusterConfigCommand);
+    testCommand(match2.getCommand(), match2.getArguments(), "get cluster config command with id: test2\n");
+  }
+
   private void testCommand(Command command, Arguments args, String expectedOutput) throws Exception {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     PrintStream printStream = new PrintStream(outputStream);
