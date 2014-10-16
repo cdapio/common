@@ -100,7 +100,7 @@ public class CommandSetTest {
 
       @Override
       public String getPattern() {
-        return "greet <user> times <times>[ timestamp <timestamp>][ suffix <suffix>]";
+        return "greet <user> times <times> [timestamp <timestamp>] [suffix <suffix>]";
       }
 
       @Override

@@ -18,18 +18,20 @@ package co.cask.common.cli;
 
 import com.google.common.collect.ImmutableMap;
 
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents an input matching for a command and provided arguments.
  */
 public final class CommandMatch {
   
-  private static final String MANDATORY_ARG_BEGINNING = "<";
-  private static final String MANDATORY_ARG_ENDING = ">";
-  private static final String OPTIONAL_PART_BEGINNING = "[";
-  private static final String OPTIONAL_PART_ENDING = "]";
+  private static final char MANDATORY_ARG_BEGINNING = '<';
+  private static final char MANDATORY_ARG_ENDING = '>';
+  private static final char OPTIONAL_PART_BEGINNING = '[';
+  private static final char OPTIONAL_PART_ENDING = ']';
 
   private final Command command;
   private final String input;
@@ -61,108 +63,194 @@ public final class CommandMatch {
     return input;
   }
 
+  /**
+   * Parse arguments from the input and command pattern.
+   *
+   * @param input the input
+   * @param pattern the command pattern
+   * @return parsed arguments
+   */
   private Arguments parseArguments(String input, String pattern) {
     ImmutableMap.Builder<String, String> args = ImmutableMap.builder();
-    int mandatoryEnd = pattern.indexOf(OPTIONAL_PART_BEGINNING);
-    mandatoryEnd = mandatoryEnd > 0 ? mandatoryEnd : pattern.length();
-    String mandatoryPatternPart = pattern.substring(0, mandatoryEnd);
-    boolean isFullPattern = mandatoryEnd == pattern.length();
-    int currentIndex;
-    if (mandatoryPatternPart.contains(MANDATORY_ARG_BEGINNING)) {
-      currentIndex = parseArgs(args, input, mandatoryPatternPart, isFullPattern);
-    } else {
-      currentIndex = mandatoryEnd;
-    }
-    if (isFullPattern) {
-      return new Arguments(args.build(), input);
-    }
 
-    String rawOptionalPatternPart = pattern.substring(mandatoryEnd);
-    rawOptionalPatternPart = rawOptionalPatternPart.replace(OPTIONAL_PART_BEGINNING, "");
-    String[] rawOptionalArgs = rawOptionalPatternPart.split(OPTIONAL_PART_ENDING);
+    List<String> splitInput = Parser.parseInput(input);
+    List<String> splitPattern = Parser.parsePattern(pattern);
 
-    String optionalPatternPart = sortAndFilter(input.substring(currentIndex), rawOptionalArgs);
-
-    if (mandatoryPatternPart.lastIndexOf(MANDATORY_ARG_ENDING) == mandatoryPatternPart.length() - 1) {
-      String lastMandatoryValue = getLastMandatoryArgument(input, currentIndex, optionalPatternPart);
-      args.put(mandatoryPatternPart.substring(mandatoryPatternPart.lastIndexOf(MANDATORY_ARG_BEGINNING) + 1,
-                                              mandatoryPatternPart.lastIndexOf(MANDATORY_ARG_ENDING)),
-               lastMandatoryValue);
-      currentIndex += lastMandatoryValue.length();
-    }
-    if (optionalPatternPart.contains(MANDATORY_ARG_BEGINNING)) {
-      parseArgs(args, input.substring(currentIndex), optionalPatternPart, true);
+    while (!splitInput.isEmpty()) {
+      if (splitPattern.isEmpty()) {
+        throw new IllegalArgumentException("Expected format: " + command.getPattern());
+      }
+      String patternPart = splitPattern.get(0);
+      String inputPart = splitInput.get(0);
+      if (patternPart.startsWith((Character.toString(OPTIONAL_PART_BEGINNING))) &&
+          patternPart.endsWith((Character.toString(OPTIONAL_PART_ENDING)))) {
+        args.putAll(parseOptional(splitInput, getEntry(patternPart)));
+      } else {
+        if (patternPart.startsWith((Character.toString(MANDATORY_ARG_BEGINNING))) &&
+            patternPart.endsWith((Character.toString(MANDATORY_ARG_ENDING)))) {
+          args.put(getEntry(patternPart), inputPart);
+        } else if (!patternPart.equals(inputPart)) {
+          throw new IllegalArgumentException("Expected format: " + command.getPattern());
+        }
+        splitInput.remove(0);
+      }
+      splitPattern.remove(0);
     }
     return new Arguments(args.build(), input);
   }
 
-  private String getLastMandatoryArgument(String input, int currentIndex, String optionalPatternPart) {
-    int optionalPartFirstArgStart = optionalPatternPart.indexOf(MANDATORY_ARG_BEGINNING);
-    optionalPartFirstArgStart = optionalPartFirstArgStart > 0 ? optionalPartFirstArgStart :
-      optionalPatternPart.length();
+  /**
+   * Parse arguments from the split input and pattern.
+   * Used for parsing optional parameters. Does not cause the effect in case specified parameter absent.
+   *
+   * @param splitInput the split input
+   * @param pattern the pattern
+   * @return the map of arguments
+   */
+  private Map<String, String> parseOptional(List<String> splitInput, String pattern) {
+    ImmutableMap.Builder<String, String> args = ImmutableMap.builder();
 
-    if (optionalPartFirstArgStart != 0) {
-      return input.substring(currentIndex, input.indexOf(
-        optionalPatternPart.substring(0, optionalPartFirstArgStart), currentIndex));
-    } else {
-      return input.substring(currentIndex);
+    List<String> copyInput = new ArrayList<String>(splitInput);
+    List<String> splitPattern = Parser.parsePattern(pattern);
+
+    while (!splitPattern.isEmpty()) {
+      if (copyInput.isEmpty()) {
+        return Collections.emptyMap();
+      }
+      String patternPart = splitPattern.get(0);
+      String inputPart = copyInput.get(0);
+      if (patternPart.startsWith((Character.toString(MANDATORY_ARG_BEGINNING))) &&
+          patternPart.endsWith((Character.toString(MANDATORY_ARG_ENDING)))) {
+        args.put(getEntry(patternPart), inputPart);
+      } else if (patternPart.startsWith((Character.toString(OPTIONAL_PART_BEGINNING))) &&
+                 patternPart.endsWith((Character.toString(OPTIONAL_PART_ENDING)))) {
+        args.putAll(parseOptional(copyInput, getEntry(patternPart)));
+      } else if (!patternPart.equals(inputPart)) {
+        return Collections.emptyMap();
+      }
+      splitPattern.remove(0);
+      copyInput.remove(0);
     }
+
+    splitInput.clear();
+    splitInput.addAll(copyInput);
+    return args.build();
   }
 
-  private int parseArgs(ImmutableMap.Builder<String, String> args, String input,
-                    String pattern, boolean isFullPattern) {
-    String[] patternArgs = pattern.split(MANDATORY_ARG_ENDING);
-    int currentIndex = 0;
-    for (int i = 0; i < patternArgs.length - 1; i++) {
-      String[] currentOption = patternArgs[i].split(MANDATORY_ARG_BEGINNING);
-      String[] nextOption = patternArgs[i + 1].split(MANDATORY_ARG_BEGINNING);
-      if (!input.startsWith(currentOption[0], currentIndex)) {
-        throw new IllegalArgumentException("Expected format: " + command.getPattern());
-      }
-      currentIndex += currentOption[0].length();
-      int argEnd = input.indexOf(nextOption[0], currentIndex);
-      if (argEnd == -1 || currentIndex == argEnd) {
-        throw new IllegalArgumentException("Expected format: " + command.getPattern());
-      }
-      String value = input.substring(currentIndex, argEnd);
-      args.put(currentOption[1], value);
-      currentIndex += value.length();
-    }
-    currentIndex += patternArgs[patternArgs.length - 1].split(MANDATORY_ARG_BEGINNING)[0].length();
-    if (isFullPattern) {
-      if (currentIndex == input.length()) {
-        throw new IllegalArgumentException("Expected format: " + command.getPattern());
-      }
-      args.put(patternArgs[patternArgs.length - 1].split(MANDATORY_ARG_BEGINNING)[1], input.substring(currentIndex));
-    }
-    return currentIndex;
+  /**
+   * Retrieves entry from input {@link String}.
+   * For example, for input "<some input>" returns "some input".
+   *
+   * @param input the input
+   * @return entry {@link String}
+   */
+  private String getEntry(String input) {
+    return input.substring(1, input.length() - 1);
   }
 
-  private String sortAndFilter(final String input, String[] args) {
-    String[] argsCopy = new String[args.length];
-    System.arraycopy(args, 0, argsCopy, 0, args.length);
-    Arrays.sort(argsCopy, new Comparator<String>() {
+  /**
+   * Utility class for parsing input and pattern
+   */
+  private static class Parser {
 
-      @Override
-      public int compare(String arg1, String arg2) {
-        int arg2Length = input.indexOf(arg2.split(MANDATORY_ARG_BEGINNING)[0]);
-        if (arg2Length == -1) {
-          return -1;
-        }
-        int arg1Length = input.indexOf(arg1.split(MANDATORY_ARG_BEGINNING)[0]);
-        if (arg1Length == -1) {
-          return 1;
-        }
-        return arg1Length - arg2Length;
-      }
-    });
-    StringBuilder builder = new StringBuilder();
-    for (String arg : argsCopy) {
-      if (!input.contains(arg.split(MANDATORY_ARG_BEGINNING)[0])) {
-        break;
-      }
-      builder.append(arg);
+    private static final char SEPARATOR = ' ';
+    private static final char ARG_WRAPPER = '"';
+    private static final char JSON_WRAPPER = '\'';
+
+    private static enum State {
+      EMPTY, IN_QUOTES, IN_DOUBLE_QUOTES, IN_MANDATORY_ARG, IN_OPTIONAL_PART
     }
-    return builder.toString();
+
+    /**
+     * Parse input.
+     *
+     * @param input the input
+     * @return parsed input
+     */
+    public static List<String> parseInput(String input) {
+      List<String> splitInput = new ArrayList<String>();
+      StringBuilder builder = new StringBuilder();
+      State state = State.EMPTY;
+      for (char ch : input.toCharArray()) {
+        switch (state) {
+          case EMPTY:
+            if (ch == SEPARATOR) {
+              splitInput.add(builder.toString());
+              builder.setLength(0);
+              break;
+            }
+            if (ch == ARG_WRAPPER) {
+              state = State.IN_DOUBLE_QUOTES;
+            }
+            if (ch == JSON_WRAPPER) {
+              state = State.IN_QUOTES;
+            }
+            builder.append(ch);
+            break;
+          case IN_DOUBLE_QUOTES:
+            if (ch == ARG_WRAPPER) {
+              state = State.EMPTY;
+            }
+            builder.append(ch);
+            break;
+          case IN_QUOTES:
+            if (ch == JSON_WRAPPER) {
+              state = State.EMPTY;
+            }
+            builder.append(ch);
+            break;
+        }
+      }
+      if (builder.length() > 0) {
+        splitInput.add(builder.toString());
+      }
+      return splitInput;
+    }
+
+    /**
+     * Parse pattern.
+     *
+     * @param pattern the pattern
+     * @return parsed pattern
+     */
+    public static List<String> parsePattern(String pattern) {
+      List<String> splitPattern = new ArrayList<String>();
+      StringBuilder builder = new StringBuilder();
+      State state = State.EMPTY;
+      for (char ch : pattern.toCharArray()) {
+        switch (state) {
+          case EMPTY:
+            if (ch == SEPARATOR) {
+              splitPattern.add(builder.toString());
+              builder.setLength(0);
+              break;
+            }
+            if (ch == MANDATORY_ARG_BEGINNING) {
+              state = State.IN_MANDATORY_ARG;
+            }
+            if (ch == OPTIONAL_PART_BEGINNING) {
+              state = State.IN_OPTIONAL_PART;
+            }
+            builder.append(ch);
+            break;
+          case IN_MANDATORY_ARG:
+            if (ch == MANDATORY_ARG_ENDING) {
+              state = State.EMPTY;
+            }
+            builder.append(ch);
+            break;
+          case IN_OPTIONAL_PART:
+            if (ch == OPTIONAL_PART_ENDING) {
+              state = State.EMPTY;
+            }
+            builder.append(ch);
+            break;
+        }
+      }
+      if (builder.length() > 0) {
+        splitPattern.add(builder.toString());
+      }
+      return splitPattern;
+    }
   }
 }
