@@ -18,24 +18,23 @@ package co.cask.common.cli.completers;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableList;
 
-import java.util.Collection;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Simple implementation for {@link StringsCompleter} that uses an immutable set.
  */
 public class DefaultStringsCompleter extends StringsCompleter {
 
-  private final Set<String> strings;
+  private final List<? extends CharSequence> strings;
 
-  public DefaultStringsCompleter(Iterable<String> strings) {
-    this.strings = ImmutableSet.copyOf(strings);
+  public DefaultStringsCompleter(Iterable<CharSequence> strings) {
+    this.strings = ImmutableList.copyOf(strings);
   }
 
   @Override
-  protected Supplier<Collection<String>> getStringsSupplier() {
-    return Suppliers.<Collection<String>>ofInstance(strings);
+  protected Supplier<List<? extends CharSequence>> getStringsSupplier() {
+    return Suppliers.<List<? extends CharSequence>>ofInstance(strings);
   }
 }

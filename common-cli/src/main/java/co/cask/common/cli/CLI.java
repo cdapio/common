@@ -16,22 +16,17 @@
 
 package co.cask.common.cli;
 
-import co.cask.common.cli.completers.DefaultStringsCompleter;
-import co.cask.common.cli.completers.PrefixCompleter;
+import co.cask.common.cli.completers.CLICompleter;
 import co.cask.common.cli.exception.CLIExceptionHandler;
 import co.cask.common.cli.exception.InvalidCommandException;
-import co.cask.common.cli.internal.TreeNode;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import jline.console.ConsoleReader;
 import jline.console.UserInterruptException;
-import jline.console.completer.AggregateCompleter;
 import jline.console.completer.Completer;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -113,11 +108,7 @@ public class CLI<T extends Command> {
    */
   public void startInteractiveMode(PrintStream output) throws IOException {
     this.reader.setHandleUserInterrupt(true);
-
-    List<Completer> completerList = generateCompleters();
-    for (Completer completer : completerList) {
-      reader.addCompleter(completer);
-    }
+    this.reader.addCompleter(new CLICompleter<T>(commands, completers));
 
     while (true) {
       String line;
@@ -147,66 +138,6 @@ public class CLI<T extends Command> {
 
   public void setExceptionHandler(CLIExceptionHandler<Exception> exceptionHandler) {
     this.exceptionHandler = exceptionHandler;
-  }
-
-  private List<Completer> generateCompleters() {
-    TreeNode<String> commandTokenTree = new TreeNode<String>();
-
-    for (Command command : commands) {
-      String pattern = command.getPattern();
-      String[] tokens = pattern.split(" ");
-
-      TreeNode<String> currentNode = commandTokenTree;
-      for (String token : tokens) {
-        currentNode = currentNode.findOrCreateChild(token);
-      }
-    }
-
-    return generateCompleters(null, commandTokenTree);
-  }
-
-  private List<Completer> generateCompleters(String prefix, TreeNode<String> commandTokenTree) {
-    List<Completer> completers = Lists.newArrayList();
-    String name = commandTokenTree.getData();
-    String childPrefix = (prefix == null || prefix.isEmpty() ? "" : prefix + " ") + (name == null ? "" : name);
-
-    if (!commandTokenTree.getChildren().isEmpty()) {
-      List<String> nonArgumentTokens = Lists.newArrayList();
-      List<String> argumentTokens = Lists.newArrayList();
-      for (TreeNode<String> child : commandTokenTree.getChildren()) {
-        String childToken = child.getData();
-        if (childToken.matches("<\\S+>")) {
-          argumentTokens.add(childToken);
-        } else {
-          nonArgumentTokens.add(child.getData());
-        }
-      }
-
-      for (String argumentToken : argumentTokens) {
-        // chop off the < and > or [ and ]
-        String completerType = argumentToken.substring(1, argumentToken.length() - 1);
-        Completer argumentCompleter = getCompleterForType(completerType);
-        if (argumentCompleter != null) {
-          completers.add(prefixCompleterIfNeeded(childPrefix, argumentCompleter));
-        }
-      }
-
-      completers.add(prefixCompleterIfNeeded(childPrefix, new DefaultStringsCompleter(nonArgumentTokens)));
-
-      for (TreeNode<String> child : commandTokenTree.getChildren()) {
-        completers.addAll(generateCompleters(childPrefix, child));
-      }
-    }
-
-    return Lists.<Completer>newArrayList(new AggregateCompleter(completers));
-  }
-
-  private Completer prefixCompleterIfNeeded(String prefix, Completer completer) {
-    if (prefix != null && !prefix.isEmpty()) {
-      return new PrefixCompleter(prefix.replaceAll("<\\S+>", "{}"), completer);
-    } else {
-      return completer;
-    }
   }
 
   private Completer getCompleterForType(String completerType) {

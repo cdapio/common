@@ -17,36 +17,36 @@
 package co.cask.common.cli.completers;
 
 import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Completer for a set of strings.
  */
 public abstract class StringsCompleter extends AbstractCompleter {
 
-  protected abstract Supplier<Collection<String>> getStringsSupplier();
+  protected abstract Supplier<List<? extends CharSequence>> getStringsSupplier();
 
   @Override
-  protected Collection<String> getAllCandidates() {
+  protected List<? extends CharSequence> getAllCandidates() {
     return getStrings();
   }
 
   @Override
-  protected Collection<String> getCandidates(String buffer) {
-    ImmutableList.Builder<String> candidates = ImmutableList.builder();
+  protected List<? extends CharSequence> getCandidates(String buffer) {
+    List<CharSequence> candidates = Lists.newArrayList();
 
-    for (String candidate : getStrings()) {
-      if (candidate.startsWith(buffer)) {
+    for (CharSequence candidate : getStrings()) {
+      if (candidate.toString().startsWith(buffer)) {
         candidates.add(candidate);
       }
     }
 
-    return candidates.build();
+    return candidates;
   }
 
-  public Collection<String> getStrings() {
+  public List<? extends CharSequence> getStrings() {
     return getStringsSupplier().get();
   }
 }

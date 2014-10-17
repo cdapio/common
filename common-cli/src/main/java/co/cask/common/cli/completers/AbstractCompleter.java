@@ -18,7 +18,6 @@ package co.cask.common.cli.completers;
 
 import jline.console.completer.Completer;
 
-import java.util.Collection;
 import java.util.List;
 
 import static jline.internal.Preconditions.checkNotNull;
@@ -28,18 +27,18 @@ import static jline.internal.Preconditions.checkNotNull;
  */
 public abstract class AbstractCompleter implements Completer {
 
-  protected abstract Collection<String> getAllCandidates();
-  protected abstract Collection<String> getCandidates(String buffer);
+  protected abstract List<? extends CharSequence> getAllCandidates();
+  protected abstract List<? extends CharSequence> getCandidates(String buffer);
 
   @Override
   public int complete(String buffer, int cursor, List<CharSequence> candidatesOut) {
     checkNotNull(candidatesOut);
 
-    if (buffer == null) {
+    if (buffer == null || buffer.length() == 0) {
       candidatesOut.addAll(getAllCandidates());
     } else {
-      Collection<String> candidates = getCandidates(buffer);
-      for (String candidate : candidates) {
+      List<? extends CharSequence> candidates = getCandidates(buffer);
+      for (CharSequence candidate : candidates) {
         candidatesOut.add(candidate);
       }
     }

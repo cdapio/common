@@ -29,7 +29,6 @@ import jline.console.completer.Completer;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -49,11 +48,11 @@ public class NoteCLI {
 
     Map<String, Completer> completers = ImmutableMap.<String, Completer>of(
       "note-id", new StringsCompleter() {
-        @Override
-        protected Supplier<Collection<String>> getStringsSupplier() {
-          return Suppliers.<Collection<String>>ofInstance(notes.keySet());
-        }
+      @Override
+      protected Supplier<List<? extends CharSequence>> getStringsSupplier() {
+        return Suppliers.<List<? extends CharSequence>>ofInstance(ImmutableList.copyOf(notes.keySet()));
       }
+    }
     );
 
     CLI cli = new CLI<Command>(commands, completers);

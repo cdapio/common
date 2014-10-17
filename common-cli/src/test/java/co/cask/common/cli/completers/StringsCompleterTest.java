@@ -21,7 +21,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Test for {@link StringsCompleter}.
@@ -32,11 +32,12 @@ public class StringsCompleterTest extends CompleterTestBase {
   public void testComplete() {
     StringsCompleter completer = new StringsCompleter() {
       @Override
-      protected Supplier<Collection<String>> getStringsSupplier() {
-        return Suppliers.<Collection<String>>ofInstance(ImmutableList.of("asdf", "asdd", "bdf"));
+      protected Supplier<List<? extends CharSequence>> getStringsSupplier() {
+        return Suppliers.<List<? extends CharSequence>>ofInstance(ImmutableList.of("asdf", "asdd", "bdf"));
       }
     };
 
+    // TODO: test blank input
     testCompleter(completer, "a", 0, ImmutableList.<CharSequence>of("asdf", "asdd"));
     testCompleter(completer, "b", 0, ImmutableList.<CharSequence>of("bdf "));
     testCompleter(completer, "c", 0, ImmutableList.<CharSequence>of());

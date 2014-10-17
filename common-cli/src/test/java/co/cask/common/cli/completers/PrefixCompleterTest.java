@@ -26,7 +26,8 @@ public class PrefixCompleterTest extends CompleterTestBase {
 
   @Test
   public void testComplete() {
-    DefaultStringsCompleter childCompleter = new DefaultStringsCompleter(ImmutableList.of("asdf", "asdd", "bdf"));
+    DefaultStringsCompleter childCompleter = new DefaultStringsCompleter(
+      ImmutableList.<CharSequence>of("asdf", "asdd", "bdf"));
     PrefixCompleter completer = new PrefixCompleter("asd lkj", childCompleter);
 
     testCompleter(completer, "asd lkj a", 0, ImmutableList.<CharSequence>of("asdf", "asdd"));
