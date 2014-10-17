@@ -162,7 +162,9 @@ public final class CommandMatch {
     }
 
     /**
-     * Parse input.
+     * Parse input. Split input {@link String} into items.
+     * Each item is a word, or some expression that starts with """ and ends with """,
+     *  or starts with "'" and ends with "'".
      *
      * @param input the input
      * @return parsed input
@@ -208,7 +210,9 @@ public final class CommandMatch {
     }
 
     /**
-     * Parse pattern.
+     * Parse pattern. Split pattern {@link String} into items.
+     * Each item is a word, or some expression that starts with "<" and ends with ">",
+     *  or starts with "[" and ends with "]".
      *
      * @param pattern the pattern
      * @return parsed pattern
