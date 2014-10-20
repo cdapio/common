@@ -20,18 +20,16 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.util.Map;
 
 /**
  * Test for {@link CommandMatch}.
  */
 public class CommandMatchTest {
 
-  private static final String NAME = "\"test cluster\"";
-  private static final String TEMPLATE = "\"hadoop\"";
-  private static final String SETTINGS = "'{some settings: \"settings\"}'";
-  private static final String OPTIONAL_ARG = "\"arg 1\"";
+  private static final String NAME = "test cluster";
+  private static final String TEMPLATE = "hadoop";
+  private static final String SETTINGS = "{\"some settings\": \"settings\"}";
+  private static final String OPTIONAL_ARG = "arg 1";
   private static final int SIZE = 5;
   private static final Command TEST_COMMAND = new Command() {
     @Override
@@ -53,8 +51,9 @@ public class CommandMatchTest {
 
   @Test
   public void getArgumentsAllOptionalTest() throws NoSuchFieldException, IllegalAccessException {
-    String testInput = String.format("create cluster %s with template %s of size %s using settings %s with %s",
-                  NAME, TEMPLATE, SIZE, SETTINGS, OPTIONAL_ARG);
+    String testInput = String.format("create cluster '%s' with template '%s' of size '%s' " +
+                                       "using settings '%s' with '%s'",
+                                     NAME, TEMPLATE, SIZE, SETTINGS, OPTIONAL_ARG);
     CommandMatch commandMatch = new CommandMatch(TEST_COMMAND, testInput);
     Arguments args = commandMatch.getArguments();
     Assert.assertEquals(5, args.size());
@@ -67,7 +66,7 @@ public class CommandMatchTest {
 
   @Test
   public void getArgumentsSomeOptionalTest() throws NoSuchFieldException, IllegalAccessException {
-    String testInput = String.format("create cluster %s with template %s of size %s with %s",
+    String testInput = String.format("create cluster '%s' with template '%s' of size '%s' with '%s'",
                                      NAME, TEMPLATE, SIZE, OPTIONAL_ARG);
     CommandMatch commandMatch = new CommandMatch(TEST_COMMAND, testInput);
     Arguments args = commandMatch.getArguments();
@@ -80,7 +79,7 @@ public class CommandMatchTest {
 
   @Test
   public void getArgumentsNoOptionalTest() throws NoSuchFieldException, IllegalAccessException {
-    String testInput = String.format("create cluster %s with template %s of size %s",
+    String testInput = String.format("create cluster '%s' with template '%s' of size '%s'",
                                      NAME, TEMPLATE, SIZE);
     CommandMatch commandMatch = new CommandMatch(TEST_COMMAND, testInput);
     Arguments args = commandMatch.getArguments();
@@ -92,7 +91,7 @@ public class CommandMatchTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void getArgumentsWrongMandatoryInputTest() throws NoSuchFieldException, IllegalAccessException {
-    String testInput = String.format("create cluster %s with template of size %s",
+    String testInput = String.format("create cluster '%s' with template of size '%s'",
                                      NAME, SIZE);
     CommandMatch commandMatch = new CommandMatch(TEST_COMMAND, testInput);
     commandMatch.getArguments();
@@ -100,7 +99,7 @@ public class CommandMatchTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void getArgumentsWrongOptionalInputTest() throws NoSuchFieldException, IllegalAccessException {
-    String testInput = String.format("create cluster %s with template %s of size %s using settings with %s",
+    String testInput = String.format("create cluster '%s' with template '%s' of size '%s' using settings with '%s'",
                                      NAME, TEMPLATE, SIZE, OPTIONAL_ARG);
     CommandMatch commandMatch = new CommandMatch(TEST_COMMAND, testInput);
     commandMatch.getArguments();

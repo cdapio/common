@@ -81,7 +81,7 @@ public final class CommandMatch {
         throw new IllegalArgumentException("Expected format: " + command.getPattern());
       }
       String patternPart = splitPattern.get(0);
-      String inputPart = splitInput.get(0);
+      String inputPart = processInputArgument(splitInput.get(0));
       if (patternPart.startsWith((Character.toString(OPTIONAL_PART_BEGINNING))) &&
           patternPart.endsWith((Character.toString(OPTIONAL_PART_ENDING)))) {
         args.putAll(parseOptional(splitInput, getEntry(patternPart)));
@@ -118,7 +118,7 @@ public final class CommandMatch {
         return Collections.emptyMap();
       }
       String patternPart = splitPattern.get(0);
-      String inputPart = copyInput.get(0);
+      String inputPart = processInputArgument(copyInput.get(0));
       if (patternPart.startsWith((Character.toString(MANDATORY_ARG_BEGINNING))) &&
           patternPart.endsWith((Character.toString(MANDATORY_ARG_ENDING)))) {
         args.put(getEntry(patternPart), inputPart);
@@ -135,6 +135,23 @@ public final class CommandMatch {
     splitInput.clear();
     splitInput.addAll(copyInput);
     return args.build();
+  }
+
+  /**
+   * Strip the surrounding ' or " from the input and process the escaped quotes.
+   *
+   * @param inputPart input argument to process
+   * @return the processed input
+   */
+  private String processInputArgument(String inputPart) {
+    if (inputPart.startsWith("'") && inputPart.endsWith("'")) {
+      inputPart = inputPart.substring(1, inputPart.length() - 1);
+    } else if (inputPart.startsWith("\"") && inputPart.endsWith("\"")) {
+      inputPart = inputPart.substring(1, inputPart.length() - 1);
+    }
+    inputPart = inputPart.replaceAll("\\'", "'");
+    inputPart = inputPart.replaceAll("\\\"", "\"");
+    return inputPart;
   }
 
   /**
@@ -156,6 +173,7 @@ public final class CommandMatch {
     private static final char SEPARATOR = ' ';
     private static final char ARG_WRAPPER = '"';
     private static final char JSON_WRAPPER = '\'';
+    private static final char ESCAPE = '\\';
 
     private static enum State {
       EMPTY, IN_QUOTES, IN_DOUBLE_QUOTES, IN_MANDATORY_ARG, IN_OPTIONAL_PART
