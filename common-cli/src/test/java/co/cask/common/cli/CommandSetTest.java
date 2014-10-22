@@ -163,8 +163,15 @@ public class CommandSetTest {
 
     match = commandSet.findMatch("greet bob times 5");
     Assert.assertTrue(match.getCommand() == greetCommand);
-    Arguments a = match.getArguments();
-    testCommand(match.getCommand(), a, Strings.repeat("[111] Hello bob oneoneone\n", 5));
+    testCommand(match.getCommand(), match.getArguments(), Strings.repeat("[111] Hello bob oneoneone\n", 5));
+
+    match = commandSet.findMatch("greet bob times 5 suffix blah");
+    Assert.assertTrue(match.getCommand() == greetCommand);
+    testCommand(match.getCommand(), match.getArguments(), Strings.repeat("[111] Hello bob blah\n", 5));
+
+    match = commandSet.findMatch("greet bob times 5 timestamp 321");
+    Assert.assertTrue(match.getCommand() == greetCommand);
+    testCommand(match.getCommand(), match.getArguments(), Strings.repeat("[321] Hello bob oneoneone\n", 5));
   }
 
   @Test
