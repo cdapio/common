@@ -151,7 +151,7 @@ public final class CommandMatch {
   /**
    * Utility class for parsing input and pattern
    */
-  private static class Parser {
+  public static class Parser {
 
     private static final char SEPARATOR = ' ';
     private static final char ARG_WRAPPER = '"';

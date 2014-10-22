@@ -31,6 +31,7 @@ import jline.console.completer.Completer;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -149,20 +150,74 @@ public class CLI<T extends Command> {
     this.exceptionHandler = exceptionHandler;
   }
 
+  /**
+   * Converts the list into an array
+   *
+   * @param list the list to be converted
+   * @return converted list into an array
+   */
+  private String[] getArray(List<String> list) {
+    if (list == null) {
+      return null;
+    }
+    String[] array = new String[list.size()];
+    for (int i = 0; i < list.size(); i++) {
+      array[i] = list.get(i);
+    }
+    return array;
+  }
+
+  /**
+   * Splits elements from list and array into array
+   *
+   * @param list the list
+   * @param array the array
+   * @return array split elements
+   */
+  private String[] getArray(List<String> list, String[] array) {
+    if (list == null && array == null) {
+      return null;
+    }
+    if (list == null) {
+      return array;
+    }
+    if (array == null) {
+      return getArray(list);
+    }
+    String[] argArray = getArray(list);
+    String[] resultArray = new String[argArray.length + array.length];
+    System.arraycopy(argArray, 0, resultArray, 0, argArray.length);
+    System.arraycopy(array, 0, resultArray, argArray.length, array.length);
+    return resultArray;
+  }
+
   private List<Completer> generateCompleters() {
     TreeNode<String> commandTokenTree = new TreeNode<String>();
 
     for (Command command : commands) {
       String pattern = command.getPattern();
-      String[] tokens = pattern.split(" ");
+      String[] tokens = getArray(CommandMatch.Parser.parsePattern(pattern));
 
-      TreeNode<String> currentNode = commandTokenTree;
-      for (String token : tokens) {
-        currentNode = currentNode.findOrCreateChild(token);
-      }
+      generateCompleters(commandTokenTree, tokens);
     }
 
     return generateCompleters(null, commandTokenTree);
+  }
+
+  private TreeNode<String> generateCompleters(TreeNode<String> commandTokenTree, String[] tokens) {
+    TreeNode<String> currentNode = commandTokenTree;
+    int counter = 1;
+    for (String token : tokens) {
+      if (token.matches("\\[.+\\]")) {
+        currentNode = generateCompleters(currentNode, getArray(CommandMatch.Parser.parsePattern(getEntry(token)),
+                                                               Arrays.copyOfRange(tokens, counter, tokens.length)));
+      } else {
+        currentNode = currentNode.findOrCreateChild(token);
+      }
+      counter++;
+    }
+
+    return commandTokenTree;
   }
 
   private List<Completer> generateCompleters(String prefix, TreeNode<String> commandTokenTree) {
@@ -175,7 +230,7 @@ public class CLI<T extends Command> {
       List<String> argumentTokens = Lists.newArrayList();
       for (TreeNode<String> child : commandTokenTree.getChildren()) {
         String childToken = child.getData();
-        if (childToken.matches("<\\S+>")) {
+        if (childToken.matches("<.+>")) {
           argumentTokens.add(childToken);
         } else {
           nonArgumentTokens.add(child.getData());
@@ -183,8 +238,8 @@ public class CLI<T extends Command> {
       }
 
       for (String argumentToken : argumentTokens) {
-        // chop off the < and > or [ and ]
-        String completerType = argumentToken.substring(1, argumentToken.length() - 1);
+        // chop off the < and >
+        String completerType = getEntry(argumentToken);
         Completer argumentCompleter = getCompleterForType(completerType);
         if (argumentCompleter != null) {
           completers.add(prefixCompleterIfNeeded(childPrefix, argumentCompleter));
@@ -201,9 +256,20 @@ public class CLI<T extends Command> {
     return Lists.<Completer>newArrayList(new AggregateCompleter(completers));
   }
 
+  /**
+   * Retrieves entry from input {@link String}.
+   * For example, for input "<some input>" returns "some input".
+   *
+   * @param input the input
+   * @return entry {@link String}
+   */
+  private String getEntry(String input) {
+    return input.substring(1, input.length() - 1);
+  }
+
   private Completer prefixCompleterIfNeeded(String prefix, Completer completer) {
     if (prefix != null && !prefix.isEmpty()) {
-      return new PrefixCompleter(prefix.replaceAll("<\\S+>", "{}"), completer);
+      return new PrefixCompleter(prefix, completer);
     } else {
       return completer;
     }

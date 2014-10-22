@@ -84,7 +84,7 @@ public class CommandSet<T extends Command> implements Iterable<T> {
    * @return regular expression
    */
   private String getMatchPattern(String pattern) {
-    String mandatoryPart = pattern.replaceAll("\\[.+\\]", ".*");
+    String mandatoryPart = pattern.replace(" [", "[").replaceAll("\\[.+\\]", ".*");
     return mandatoryPart.replaceAll("<.+>", ".+");
   }
 }
