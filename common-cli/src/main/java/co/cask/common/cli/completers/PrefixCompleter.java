@@ -40,13 +40,10 @@ public class PrefixCompleter implements Completer {
   public int complete(String buffer, int cursor, List<CharSequence> candidates) {
     String prefix = "";
     if (this.prefix != null && !this.prefix.isEmpty()) {
-      // TODO: fix bug where prefix has a space in it (e.g. "describe dataset type <type-name>"
-      prefix = this.prefix
-        .replaceAll("\\{\\}", "\\\\S+?")
-        .replaceAll(" ", "\\\\s+?") + " ";
+      prefix = this.prefix.replaceAll("<.+?>", "('.+?'|\".+?\"|\\\\S+)");
     }
 
-    String regex = "^(" + prefix + ")\\s?";
+    String regex = "^" + prefix + " ";
     Pattern pattern = Pattern.compile(regex);
 
     if (buffer != null) {

@@ -21,6 +21,8 @@ import co.cask.common.cli.completers.PrefixCompleter;
 import co.cask.common.cli.exception.CLIExceptionHandler;
 import co.cask.common.cli.exception.InvalidCommandException;
 import co.cask.common.cli.internal.TreeNode;
+import co.cask.common.cli.util.Parser;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -154,15 +156,29 @@ public class CLI<T extends Command> {
 
     for (Command command : commands) {
       String pattern = command.getPattern();
-      String[] tokens = pattern.split(" ");
+      List<String> tokens = Parser.parsePattern(pattern);
 
-      TreeNode<String> currentNode = commandTokenTree;
-      for (String token : tokens) {
-        currentNode = currentNode.findOrCreateChild(token);
-      }
+      generateCompleters(commandTokenTree, tokens);
     }
 
     return generateCompleters(null, commandTokenTree);
+  }
+
+  private TreeNode<String> generateCompleters(TreeNode<String> commandTokenTree, List<String> tokens) {
+    TreeNode<String> currentNode = commandTokenTree;
+    int counter = 1;
+    for (String token : tokens) {
+      if (token.matches("\\[.+\\]")) {
+        List<String> subTokens = Parser.parsePattern(getEntry(token));
+        subTokens.addAll(tokens.subList(counter, tokens.size()));
+        currentNode = generateCompleters(currentNode, subTokens);
+      } else {
+        currentNode = currentNode.findOrCreateChild(token);
+      }
+      counter++;
+    }
+
+    return commandTokenTree;
   }
 
   private List<Completer> generateCompleters(String prefix, TreeNode<String> commandTokenTree) {
@@ -175,7 +191,7 @@ public class CLI<T extends Command> {
       List<String> argumentTokens = Lists.newArrayList();
       for (TreeNode<String> child : commandTokenTree.getChildren()) {
         String childToken = child.getData();
-        if (childToken.matches("<\\S+>")) {
+        if (childToken.matches("<.+>")) {
           argumentTokens.add(childToken);
         } else {
           nonArgumentTokens.add(child.getData());
@@ -183,8 +199,8 @@ public class CLI<T extends Command> {
       }
 
       for (String argumentToken : argumentTokens) {
-        // chop off the < and > or [ and ]
-        String completerType = argumentToken.substring(1, argumentToken.length() - 1);
+        // chop off the < and >
+        String completerType = getEntry(argumentToken);
         Completer argumentCompleter = getCompleterForType(completerType);
         if (argumentCompleter != null) {
           completers.add(prefixCompleterIfNeeded(childPrefix, argumentCompleter));
@@ -201,9 +217,21 @@ public class CLI<T extends Command> {
     return Lists.<Completer>newArrayList(new AggregateCompleter(completers));
   }
 
+  /**
+   * Retrieves entry from input {@link String}.
+   * For example, for input "<some input>" returns "some input".
+   *
+   * @param input the input
+   * @return entry {@link String}
+   */
+  private String getEntry(String input) {
+    Preconditions.checkArgument(input != null);
+    return input.substring(1, input.length() - 1);
+  }
+
   private Completer prefixCompleterIfNeeded(String prefix, Completer completer) {
     if (prefix != null && !prefix.isEmpty()) {
-      return new PrefixCompleter(prefix.replaceAll("<\\S+>", "{}"), completer);
+      return new PrefixCompleter(prefix, completer);
     } else {
       return completer;
     }
