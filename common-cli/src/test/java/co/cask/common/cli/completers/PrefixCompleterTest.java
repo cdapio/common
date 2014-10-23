@@ -42,4 +42,24 @@ public class PrefixCompleterTest extends CompleterTestBase {
     testCompleter(completer, "c", 0, ImmutableList.<CharSequence>of());
   }
 
+  @Test
+  public void testCompleteWithArguments() {
+    DefaultStringsCompleter childCompleter = new DefaultStringsCompleter(ImmutableList.of("one", "two", "three"));
+    PrefixCompleter completer = new PrefixCompleter("some prefix <arg 1> with end <arg 2>", childCompleter);
+
+    testCompleter(completer, "some prefix 'some json \"in quotes\" and text ' with end \"argument number two\" t", 0,
+                  ImmutableList.<CharSequence>of("two", "three"));
+    testCompleter(completer, "some prefix \"arg 1\" with end arg-2 o", 0, ImmutableList.<CharSequence>of("one "));
+    testCompleter(completer, "some prefix \"arg 1\" with end arg-2 a", 0, ImmutableList.<CharSequence>of());
+
+    testCompleter(completer, "some prefix 'some json \"in quotes\" and text ' with t", 0,
+                  ImmutableList.<CharSequence>of());
+    testCompleter(completer, "some prefix \"arg 1\" with o", 0, ImmutableList.<CharSequence>of());
+    testCompleter(completer, "some prefix \"arg 1\" with a", 0, ImmutableList.<CharSequence>of());
+
+    testCompleter(completer, "t", 0, ImmutableList.<CharSequence>of());
+    testCompleter(completer, "o", 0, ImmutableList.<CharSequence>of());
+    testCompleter(completer, "a", 0, ImmutableList.<CharSequence>of());
+  }
+
 }

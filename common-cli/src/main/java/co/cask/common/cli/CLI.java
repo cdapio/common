@@ -21,6 +21,8 @@ import co.cask.common.cli.completers.PrefixCompleter;
 import co.cask.common.cli.exception.CLIExceptionHandler;
 import co.cask.common.cli.exception.InvalidCommandException;
 import co.cask.common.cli.internal.TreeNode;
+import co.cask.common.cli.util.Parser;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -150,49 +152,12 @@ public class CLI<T extends Command> {
     this.exceptionHandler = exceptionHandler;
   }
 
-  /**
-   * Converts the list into an array
-   *
-   * @param list the list to be converted
-   * @return converted list into an array
-   */
-  private String[] getArray(List<String> list) {
-    if (list == null) {
-      return null;
-    }
-    return list.toArray(new String[list.size()]);
-  }
-
-  /**
-   * Splits elements from list and array into array
-   *
-   * @param list the list
-   * @param array the array
-   * @return array split elements
-   */
-  private String[] getArray(List<String> list, String[] array) {
-    if (list == null && array == null) {
-      return null;
-    }
-    if (list == null) {
-      return array;
-    }
-    if (array == null) {
-      return getArray(list);
-    }
-    String[] argArray = getArray(list);
-    String[] resultArray = new String[argArray.length + array.length];
-    System.arraycopy(argArray, 0, resultArray, 0, argArray.length);
-    System.arraycopy(array, 0, resultArray, argArray.length, array.length);
-    return resultArray;
-  }
-
   private List<Completer> generateCompleters() {
     TreeNode<String> commandTokenTree = new TreeNode<String>();
 
     for (Command command : commands) {
       String pattern = command.getPattern();
-      String[] tokens = getArray(CommandMatch.Parser.parsePattern(pattern));
+      List<String> tokens = Parser.parsePattern(pattern);
 
       generateCompleters(commandTokenTree, tokens);
     }
@@ -200,13 +165,14 @@ public class CLI<T extends Command> {
     return generateCompleters(null, commandTokenTree);
   }
 
-  private TreeNode<String> generateCompleters(TreeNode<String> commandTokenTree, String[] tokens) {
+  private TreeNode<String> generateCompleters(TreeNode<String> commandTokenTree, List<String> tokens) {
     TreeNode<String> currentNode = commandTokenTree;
     int counter = 1;
     for (String token : tokens) {
       if (token.matches("\\[.+\\]")) {
-        currentNode = generateCompleters(currentNode, getArray(CommandMatch.Parser.parsePattern(getEntry(token)),
-                                                               Arrays.copyOfRange(tokens, counter, tokens.length)));
+        List<String> subTokens = Parser.parsePattern(getEntry(token));
+        subTokens.addAll(tokens.subList(counter, tokens.size()));
+        currentNode = generateCompleters(currentNode, subTokens);
       } else {
         currentNode = currentNode.findOrCreateChild(token);
       }
@@ -260,6 +226,7 @@ public class CLI<T extends Command> {
    * @return entry {@link String}
    */
   private String getEntry(String input) {
+    Preconditions.checkArgument(input != null);
     return input.substring(1, input.length() - 1);
   }
 

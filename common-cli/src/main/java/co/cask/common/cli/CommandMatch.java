@@ -16,6 +16,7 @@
 
 package co.cask.common.cli;
 
+import co.cask.common.cli.util.Parser;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
@@ -23,15 +24,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static co.cask.common.cli.util.Parser.MANDATORY_ARG_BEGINNING;
+import static co.cask.common.cli.util.Parser.MANDATORY_ARG_ENDING;
+import static co.cask.common.cli.util.Parser.OPTIONAL_PART_BEGINNING;
+import static co.cask.common.cli.util.Parser.OPTIONAL_PART_ENDING;
+
 /**
  * Represents an input matching for a command and provided arguments.
  */
 public final class CommandMatch {
   
-  private static final char MANDATORY_ARG_BEGINNING = '<';
-  private static final char MANDATORY_ARG_ENDING = '>';
-  private static final char OPTIONAL_PART_BEGINNING = '[';
-  private static final char OPTIONAL_PART_ENDING = ']';
+//  private static final char MANDATORY_ARG_BEGINNING = '<';
+//  private static final char MANDATORY_ARG_ENDING = '>';
+//  private static final char OPTIONAL_PART_BEGINNING = '[';
+//  private static final char OPTIONAL_PART_ENDING = ']';
 
   private final Command command;
   private final String input;
@@ -165,114 +171,114 @@ public final class CommandMatch {
     return input.substring(1, input.length() - 1);
   }
 
-  /**
-   * Utility class for parsing input and pattern
-   */
-  public static class Parser {
-
-    private static final char SEPARATOR = ' ';
-    private static final char ARG_WRAPPER = '"';
-    private static final char JSON_WRAPPER = '\'';
-    private static final char ESCAPE = '\\';
-
-    private static enum State {
-      EMPTY, IN_QUOTES, IN_DOUBLE_QUOTES, IN_MANDATORY_ARG, IN_OPTIONAL_PART
-    }
-
-    /**
-     * Parse input. Split input {@link String} into items.
-     * Each item is a word, or some expression that starts with """ and ends with """,
-     *  or starts with "'" and ends with "'".
-     *
-     * @param input the input
-     * @return parsed input
-     */
-    public static List<String> parseInput(String input) {
-      List<String> splitInput = new ArrayList<String>();
-      StringBuilder builder = new StringBuilder();
-      State state = State.EMPTY;
-      for (char ch : input.toCharArray()) {
-        switch (state) {
-          case EMPTY:
-            if (ch == SEPARATOR) {
-              splitInput.add(builder.toString());
-              builder.setLength(0);
-              break;
-            }
-            if (ch == ARG_WRAPPER) {
-              state = State.IN_DOUBLE_QUOTES;
-            }
-            if (ch == JSON_WRAPPER) {
-              state = State.IN_QUOTES;
-            }
-            builder.append(ch);
-            break;
-          case IN_DOUBLE_QUOTES:
-            if (ch == ARG_WRAPPER) {
-              state = State.EMPTY;
-            }
-            builder.append(ch);
-            break;
-          case IN_QUOTES:
-            if (ch == JSON_WRAPPER) {
-              state = State.EMPTY;
-            }
-            builder.append(ch);
-            break;
-        }
-      }
-      if (builder.length() > 0) {
-        splitInput.add(builder.toString());
-      }
-      return splitInput;
-    }
-
-    /**
-     * Parse pattern. Split pattern {@link String} into items.
-     * Each item is a word, or some expression that starts with "<" and ends with ">",
-     *  or starts with "[" and ends with "]".
-     *
-     * @param pattern the pattern
-     * @return parsed pattern
-     */
-    public static List<String> parsePattern(String pattern) {
-      List<String> splitPattern = new ArrayList<String>();
-      StringBuilder builder = new StringBuilder();
-      State state = State.EMPTY;
-      for (char ch : pattern.toCharArray()) {
-        switch (state) {
-          case EMPTY:
-            if (ch == SEPARATOR) {
-              splitPattern.add(builder.toString());
-              builder.setLength(0);
-              break;
-            }
-            if (ch == MANDATORY_ARG_BEGINNING) {
-              state = State.IN_MANDATORY_ARG;
-            }
-            if (ch == OPTIONAL_PART_BEGINNING) {
-              state = State.IN_OPTIONAL_PART;
-            }
-            builder.append(ch);
-            break;
-          case IN_MANDATORY_ARG:
-            if (ch == MANDATORY_ARG_ENDING) {
-              state = State.EMPTY;
-            }
-            builder.append(ch);
-            break;
-          case IN_OPTIONAL_PART:
-            if (ch == OPTIONAL_PART_ENDING) {
-              state = State.EMPTY;
-            }
-            builder.append(ch);
-            break;
-        }
-      }
-      if (builder.length() > 0) {
-        splitPattern.add(builder.toString());
-      }
-      return splitPattern;
-    }
-  }
+//  /**
+//   * Utility class for parsing input and pattern
+//   */
+//  public static class Parser {
+//
+//    private static final char SEPARATOR = ' ';
+//    private static final char ARG_WRAPPER = '"';
+//    private static final char JSON_WRAPPER = '\'';
+//    private static final char ESCAPE = '\\';
+//
+//    private static enum State {
+//      EMPTY, IN_QUOTES, IN_DOUBLE_QUOTES, IN_MANDATORY_ARG, IN_OPTIONAL_PART
+//    }
+//
+//    /**
+//     * Parse input. Split input {@link String} into items.
+//     * Each item is a word, or some expression that starts with """ and ends with """,
+//     *  or starts with "'" and ends with "'".
+//     *
+//     * @param input the input
+//     * @return parsed input
+//     */
+//    public static List<String> parseInput(String input) {
+//      List<String> splitInput = new ArrayList<String>();
+//      StringBuilder builder = new StringBuilder();
+//      State state = State.EMPTY;
+//      for (char ch : input.toCharArray()) {
+//        switch (state) {
+//          case EMPTY:
+//            if (ch == SEPARATOR) {
+//              splitInput.add(builder.toString());
+//              builder.setLength(0);
+//              break;
+//            }
+//            if (ch == ARG_WRAPPER) {
+//              state = State.IN_DOUBLE_QUOTES;
+//            }
+//            if (ch == JSON_WRAPPER) {
+//              state = State.IN_QUOTES;
+//            }
+//            builder.append(ch);
+//            break;
+//          case IN_DOUBLE_QUOTES:
+//            if (ch == ARG_WRAPPER) {
+//              state = State.EMPTY;
+//            }
+//            builder.append(ch);
+//            break;
+//          case IN_QUOTES:
+//            if (ch == JSON_WRAPPER) {
+//              state = State.EMPTY;
+//            }
+//            builder.append(ch);
+//            break;
+//        }
+//      }
+//      if (builder.length() > 0) {
+//        splitInput.add(builder.toString());
+//      }
+//      return splitInput;
+//    }
+//
+//    /**
+//     * Parse pattern. Split pattern {@link String} into items.
+//     * Each item is a word, or some expression that starts with "<" and ends with ">",
+//     *  or starts with "[" and ends with "]".
+//     *
+//     * @param pattern the pattern
+//     * @return parsed pattern
+//     */
+//    public static List<String> parsePattern(String pattern) {
+//      List<String> splitPattern = new ArrayList<String>();
+//      StringBuilder builder = new StringBuilder();
+//      State state = State.EMPTY;
+//      for (char ch : pattern.toCharArray()) {
+//        switch (state) {
+//          case EMPTY:
+//            if (ch == SEPARATOR) {
+//              splitPattern.add(builder.toString());
+//              builder.setLength(0);
+//              break;
+//            }
+//            if (ch == MANDATORY_ARG_BEGINNING) {
+//              state = State.IN_MANDATORY_ARG;
+//            }
+//            if (ch == OPTIONAL_PART_BEGINNING) {
+//              state = State.IN_OPTIONAL_PART;
+//            }
+//            builder.append(ch);
+//            break;
+//          case IN_MANDATORY_ARG:
+//            if (ch == MANDATORY_ARG_ENDING) {
+//              state = State.EMPTY;
+//            }
+//            builder.append(ch);
+//            break;
+//          case IN_OPTIONAL_PART:
+//            if (ch == OPTIONAL_PART_ENDING) {
+//              state = State.EMPTY;
+//            }
+//            builder.append(ch);
+//            break;
+//        }
+//      }
+//      if (builder.length() > 0) {
+//        splitPattern.add(builder.toString());
+//      }
+//      return splitPattern;
+//    }
+//  }
 }
