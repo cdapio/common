@@ -23,6 +23,8 @@ the License.
   <version>0.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Cask Common Libraries</name>
+  <description>Common utilities</description>
+  <url>https://github.com/caskdata/common</url>
  
   <organization>
     <name>Cask</name>
