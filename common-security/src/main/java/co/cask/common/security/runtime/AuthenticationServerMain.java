@@ -75,8 +75,8 @@ public class AuthenticationServerMain extends DaemonMain {
       }
     } else {
       String warning = "AuthenticationServer not started since co.cask.common.security is disabled." +
-                        " To enable co.cask.common.security, set \"co.cask.common.security.enabled\" = " +
-                        "\"true\" in cdap-site.xml and edit the appropriate configuration.";
+                       " To enable security, set \"security.enabled\" = \"true\" in cdap-site.xml" +
+                       " and edit the appropriate configuration.";
       LOG.warn(warning);
     }
   }
