@@ -19,7 +19,10 @@ package co.cask.common.http;
 import co.cask.http.AbstractHttpHandler;
 import co.cask.http.HttpResponder;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 import com.google.inject.matcher.Matcher;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.junit.Assert;
@@ -49,88 +52,105 @@ public abstract class HttpRequestsTestBase {
 
   @Test
   public void testHttpStatus() throws Exception {
-    testGet("/fake/fake", only(404), only("Not Found"), only("Problem accessing: /fake/fake. Reason: Not Found"));
-    testGet("/api/testOkWithResponse", only(200), any(), only("Great response"));
-    testGet("/api/testOkWithResponse201", only(201), any(), only("Great response 201"));
-    testGet("/api/testOkWithResponse202", only(202), any(), only("Great response 202"));
-    testGet("/api/testOkWithResponse203", only(203), any(), only("Great response 203"));
-    testGet("/api/testOkWithResponse204", only(204), any(), only(""));
-    testGet("/api/testOkWithResponse205", only(205), any(), only("Great response 205"));
-    testGet("/api/testOkWithResponse206", only(206), any(), only("Great response 206"));
-    testGet("/api/testHttpStatus", only(200), only("OK"), only(""));
-    testGet("/api/testBadRequest", only(400), only("Bad Request"), only(""));
-    testGet("/api/testBadRequestWithErrorMessage", only(400), only("Bad Request"), only("Cool error message"));
-    testGet("/api/testConflict", only(409), only("Conflict"), only(""));
-    testGet("/api/testConflictWithMessage", only(409), only("Conflict"), only("Conflictmes"));
+    testGet("/fake/fake", only(404), only("Not Found"),
+            only("Problem accessing: /fake/fake. Reason: Not Found"), any());
+    testGet("/api/testOkWithResponse", only(200), any(), only("Great response"), any());
+    testGet("/api/testOkWithResponse201", only(201), any(), only("Great response 201"), any());
+    testGet("/api/testOkWithResponse202", only(202), any(), only("Great response 202"), any());
+    testGet("/api/testOkWithResponse203", only(203), any(), only("Great response 203"), any());
+    testGet("/api/testOkWithResponse204", only(204), any(), only(""), any());
+    testGet("/api/testOkWithResponse205", only(205), any(), only("Great response 205"), any());
+    testGet("/api/testOkWithResponse206", only(206), any(), only("Great response 206"), any());
 
-    testPost("/fake/fake", only(404), only("Not Found"), only("Problem accessing: /fake/fake. Reason: Not Found"));
-    testPost("/api/testOkWithResponse", only(200), any(), only("Great response"));
-    testPost("/api/testOkWithResponse201", only(201), any(), only("Great response 201"));
-    testPost("/api/testOkWithResponse202", only(202), any(), only("Great response 202"));
-    testPost("/api/testOkWithResponse203", only(203), any(), only("Great response 203"));
-    testPost("/api/testOkWithResponse204", only(204), any(), only(""));
-    testPost("/api/testOkWithResponse205", only(205), any(), only("Great response 205"));
-    testPost("/api/testOkWithResponse206", only(206), any(), only("Great response 206"));
-    testPost("/api/testHttpStatus", only(200), only("OK"), only(""));
-    testPost("/api/testBadRequest", only(400), only("Bad Request"), only(""));
-    testPost("/api/testBadRequestWithErrorMessage", only(400), only("Bad Request"), only("Cool error message"));
-    testPost("/api/testConflict", only(409), only("Conflict"), only(""));
-    testPost("/api/testConflictWithMessage", only(409), only("Conflict"), only("Conflictmes"));
+    // Expected headers for a request
+    Multimap<String, String> expectedHeaders = ArrayListMultimap.create();
+    expectedHeaders.put("headerKey", "headerValue2");
+    expectedHeaders.put("headerKey", "headerValue1");
+    expectedHeaders.put("Connection", "keep-alive");
+    expectedHeaders.put("Content-Length", "0");
+    testGet("/api/testOkWithHeaders", only(200), only("OK"), only(""), only(expectedHeaders));
 
-    testPost("/api/testPost", ImmutableMap.of("sdf", "123zz"), "somebody", only(200), any(), only("somebody123zz"));
+    testGet("/api/testHttpStatus", only(200), only("OK"), only(""), any());
+    testGet("/api/testBadRequest", only(400), only("Bad Request"), only(""), any());
+    testGet("/api/testBadRequestWithErrorMessage", only(400), only("Bad Request"), only("Cool error message"), any());
+    testGet("/api/testConflict", only(409), only("Conflict"), only(""), any());
+    testGet("/api/testConflictWithMessage", only(409), only("Conflict"), only("Conflictmes"), any());
+
+    testPost("/fake/fake", only(404), only("Not Found"),
+             only("Problem accessing: /fake/fake. Reason: Not Found"), any());
+    testPost("/api/testOkWithResponse", only(200), any(), only("Great response"), any());
+    testPost("/api/testOkWithResponse201", only(201), any(), only("Great response 201"), any());
+    testPost("/api/testOkWithResponse202", only(202), any(), only("Great response 202"), any());
+    testPost("/api/testOkWithResponse203", only(203), any(), only("Great response 203"), any());
+    testPost("/api/testOkWithResponse204", only(204), any(), only(""), any());
+    testPost("/api/testOkWithResponse205", only(205), any(), only("Great response 205"), any());
+    testPost("/api/testOkWithResponse206", only(206), any(), only("Great response 206"), any());
+    testPost("/api/testHttpStatus", only(200), only("OK"), only(""), any());
+    testPost("/api/testBadRequest", only(400), only("Bad Request"), only(""), any());
+    testPost("/api/testBadRequestWithErrorMessage", only(400), only("Bad Request"), only("Cool error message"), any());
+    testPost("/api/testConflict", only(409), only("Conflict"), only(""), any());
+    testPost("/api/testConflictWithMessage", only(409), only("Conflict"), only("Conflictmes"), any());
+    testPost("/api/testPost", ImmutableMap.of("sdf", "123zz"), "somebody", only(200),
+             any(), only("somebody123zz"), any());
     testPost("/api/testPost409", ImmutableMap.of("sdf", "123zz"), "somebody", only(409), any(),
-             only("somebody123zz409"));
+             only("somebody123zz409"), any());
 
-    testPut("/api/testPut", ImmutableMap.of("sdf", "123zz"), "somebody", only(200), any(), only("somebody123zz"));
-    testPut("/api/testPut409", ImmutableMap.of("sdf", "123zz"), "somebody", only(409), any(), only("somebody123zz409"));
+    testPut("/api/testPut", ImmutableMap.of("sdf", "123zz"), "somebody", only(200),
+            any(), only("somebody123zz"), any());
+    testPut("/api/testPut409", ImmutableMap.of("sdf", "123zz"), "somebody", only(409),
+            any(), only("somebody123zz409"), any());
 
-    testDelete("/api/testDelete", only(200), any(), any());
+    testDelete("/api/testDelete", only(200), any(), any(), any());
   }
 
-  private void testPost(String path, Map<String, String> headers, String body, Matcher<Object> expectedResponseCode,
-                        Matcher<Object> expectedMessage, Matcher<Object> expectedBody) throws Exception {
+  private void testPost(String path, Map<String, String> headers, String body,
+                        Matcher<Object> expectedResponseCode, Matcher<Object> expectedMessage,
+                        Matcher<Object> expectedBody, Matcher<Object> expectedHeaders) throws Exception {
 
     URL url = getBaseURI().resolve(path).toURL();
     HttpRequest request = HttpRequest.post(url).addHeaders(headers).withBody(body).build();
     HttpResponse response = HttpRequests.execute(request, getHttpRequestsConfig());
-    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody);
+    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
   }
 
-  private void testPost(String path, Matcher<Object> expectedResponseCode,
-                        Matcher<Object> expectedMessage, Matcher<Object> expectedBody) throws Exception {
+  private void testPost(String path, Matcher<Object> expectedResponseCode, Matcher<Object> expectedMessage,
+                        Matcher<Object> expectedBody, Matcher<Object> expectedHeaders) throws Exception {
 
-    testPost(path, ImmutableMap.<String, String>of(), "", expectedResponseCode, expectedMessage, expectedBody);
+    testPost(path, ImmutableMap.<String, String>of(), "", expectedResponseCode,
+             expectedMessage, expectedBody, expectedHeaders);
   }
 
-  private void testPut(String path, Map<String, String> headers, String body, Matcher<Object> expectedResponseCode,
-                        Matcher<Object> expectedMessage, Matcher<Object> expectedBody) throws Exception {
+  private void testPut(String path, Map<String, String> headers, String body,
+                       Matcher<Object> expectedResponseCode, Matcher<Object> expectedMessage,
+                       Matcher<Object> expectedBody, Matcher<Object> expectedHeaders) throws Exception {
 
     URL url = getBaseURI().resolve(path).toURL();
     HttpRequest request = HttpRequest.put(url).addHeaders(headers).withBody(body).build();
     HttpResponse response = HttpRequests.execute(request, getHttpRequestsConfig());
-    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody);
+    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
   }
 
-  private void testGet(String path, Matcher<Object> expectedResponseCode,
-                       Matcher<Object> expectedMessage, Matcher<Object> expectedBody) throws Exception {
+  private void testGet(String path, Matcher<Object> expectedResponseCode, Matcher<Object> expectedMessage,
+                       Matcher<Object> expectedBody, Matcher<Object> expectedHeaders) throws Exception {
 
     URL url = getBaseURI().resolve(path).toURL();
     HttpRequest request = HttpRequest.get(url).build();
     HttpResponse response = HttpRequests.execute(request, getHttpRequestsConfig());
-    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody);
+    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
   }
 
-  private void testDelete(String path, Matcher<Object> expectedResponseCode,
-                          Matcher<Object> expectedMessage, Matcher<Object> expectedBody) throws Exception {
+  private void testDelete(String path, Matcher<Object> expectedResponseCode, Matcher<Object> expectedMessage,
+                          Matcher<Object> expectedBody, Matcher<Object> expectedHeaders) throws Exception {
 
     URL url = getBaseURI().resolve(path).toURL();
     HttpRequest request = HttpRequest.delete(url).build();
     HttpResponse response = HttpRequests.execute(request, getHttpRequestsConfig());
-    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody);
+    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
   }
 
   private void verifyResponse(HttpResponse response, Matcher<Object> expectedResponseCode,
-                              Matcher<Object> expectedMessage, Matcher<Object> expectedBody) {
+                              Matcher<Object> expectedMessage, Matcher<Object> expectedBody,
+                              Matcher<Object> expectedHeaders) {
 
     Assert.assertTrue("Response code - expected: " + expectedResponseCode.toString()
                         + " actual: " + response.getResponseCode(),
@@ -144,6 +164,10 @@ public abstract class HttpRequestsTestBase {
     Assert.assertTrue("Response body - expected: " + expectedBody.toString()
                         + " actual: " + actualResponseBody,
                       expectedBody.matches(actualResponseBody));
+
+    Assert.assertTrue("Response headers - expected: " + expectedHeaders.toString()
+                      + " actual: " + response.getHeaders(),
+                      expectedHeaders.matches(response.getHeaders()));
   }
 
   @Path("/api")
@@ -203,6 +227,15 @@ public abstract class HttpRequestsTestBase {
     public void testOkWithResponse206(org.jboss.netty.handler.codec.http.HttpRequest request,
                                       HttpResponder responder) throws Exception {
       responder.sendString(HttpResponseStatus.PARTIAL_CONTENT, "Great response 206");
+    }
+
+    @GET
+    @Path("/testOkWithHeaders")
+    public void testOkWithHeaders(org.jboss.netty.handler.codec.http.HttpRequest request,
+                                  HttpResponder responder) throws Exception {
+      Multimap<String, String> headers = ImmutableListMultimap.of("headerKey", "headerValue1",
+                                                                  "headerKey", "headerValue2");
+      responder.sendStatus(HttpResponseStatus.OK, headers);
     }
 
     @GET
