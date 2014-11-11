@@ -61,7 +61,7 @@ public final class ObjectResponse<T> extends HttpResponse {
   }
 
   private ObjectResponse(HttpResponse response, T object) {
-    super(response.getResponseCode(), response.getResponseMessage(), response.getResponseBody());
+    super(response.getResponseCode(), response.getResponseMessage(), response.getResponseBody(), response.getHeaders());
     this.object = object;
   }
 
