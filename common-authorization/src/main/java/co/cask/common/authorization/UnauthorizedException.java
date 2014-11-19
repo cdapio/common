@@ -16,7 +16,7 @@
 package co.cask.common.authorization;
 
 /**
- * Thrown when a user tried to access an access-controlled resource without the necessary permissions.
+ * Thrown when a user tries to access a protected resource without the necessary permissions.
  */
 public class UnauthorizedException extends RuntimeException {
 

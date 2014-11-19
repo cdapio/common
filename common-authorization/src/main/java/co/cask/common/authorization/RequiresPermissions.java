@@ -24,9 +24,11 @@ import java.lang.annotation.Target;
 /**
  * Annotation for a method that requires permissions to execute.
  *
+ * <p>
  * Proxy your annotated object with
  * {@link co.cask.common.authorization.proxy.AuthorizationProxyFactory#getProxy(Object, ObjectId)}
  * to have a proxy instance that verifies access control on methods annotated with {@link RequiresPermissions}.
+ * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

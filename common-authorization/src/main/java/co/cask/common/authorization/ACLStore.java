@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012-2014 Cask Data, Inc.
+ * Copyright © 2014 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,7 +18,7 @@ package co.cask.common.authorization;
 import java.util.List;
 
 /**
- * Provides ways to store and query {@link ACLEntry}s.
+ * Provides methods for storing and querying {@link ACLEntry}s.
  */
 public interface ACLStore {
 
@@ -26,7 +26,7 @@ public interface ACLStore {
    * Writes an {@link ACLEntry}.
    *
    * @param entry the {@link ACLEntry} to write
-   * @return true if entry had not yet existed
+   * @return true if entry did not previously exist
    */
   boolean write(ACLEntry entry);
 
@@ -43,7 +43,7 @@ public interface ACLStore {
    *
    * @param objectId the relevant object
    * @param subjectId the relevant subject
-   * @return a list of {@link ACLEntry}s that have the {@code object} and {@code subject}.
+   * @return the {@link ACLEntry}s that have the {@code object} and {@code subject}.
    */
   List<ACLEntry> read(ObjectId objectId, SubjectId subjectId);
 }
