@@ -42,16 +42,22 @@ public abstract class AuthorizationClient {
 
   private static final Gson GSON = new Gson();
 
-  public void verifyAuthorized(ObjectId objectId, SubjectId subjectId,
+  public void verifyAuthorized(ObjectId objectId, Iterable<SubjectId> subjectIds,
                                Iterable<String> requiredPermissions) throws IOException {
-    List<ACLEntry> acls = this.getACLs(objectId, subjectId);
-    if (!fulfillsRequiredPermissions(acls, requiredPermissions)) {
-      throw new UnauthorizedException();
+
+    for (SubjectId subjectId : subjectIds) {
+      List<ACLEntry> acls = this.getACLs(objectId, subjectId);
+      if (fulfillsRequiredPermissions(acls, requiredPermissions)) {
+        return;
+      }
     }
+
+    throw new UnauthorizedException();
   }
 
-  public void verifyAuthorized(ObjectId objectId, SubjectId subjectId, String requiredPermission) throws IOException {
-    this.verifyAuthorized(objectId, subjectId, ImmutableSet.of(requiredPermission));
+  public void verifyAuthorized(ObjectId objectId, Iterable<SubjectId> subjectIds,
+                               String requiredPermission) throws IOException {
+    this.verifyAuthorized(objectId, subjectIds, ImmutableSet.of(requiredPermission));
   }
 
   protected abstract URL resolveURL(String path) throws MalformedURLException;
