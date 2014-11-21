@@ -41,7 +41,7 @@ import java.util.Map;
  * Provides a command-line interface (CLI) with auto-completion,
  * interactive and non-interactive modes, and other typical shell features.
  * </p>
- *
+ * <p/>
  * <p>
  * {@link #commands} contains all of the available commands, and {@link #completers}
  * contains the available completers per argument type. For example, if we have a command
@@ -93,6 +93,7 @@ public class CLI<T extends Command> {
    */
   public void setCommands(Iterable<T> commands) {
     this.commands = new CommandSet<T>(commands);
+    updateCompleters();
   }
 
   /**
@@ -100,8 +101,9 @@ public class CLI<T extends Command> {
    *
    * @param completers the completers to update
    */
-  public void setCompleaters(Map<String, Completer> completers) {
+  public void setCompleters(Map<String, Completer> completers) {
     this.completers = new CompleterSet(completers);
+    updateCompleters();
   }
 
   /**
@@ -134,11 +136,7 @@ public class CLI<T extends Command> {
    */
   public void startInteractiveMode(PrintStream output) throws IOException {
     this.reader.setHandleUserInterrupt(true);
-
-    List<Completer> completerList = generateCompleters();
-    for (Completer completer : completerList) {
-      reader.addCompleter(completer);
-    }
+    updateCompleters();
 
     while (true) {
       String line;
@@ -163,6 +161,16 @@ public class CLI<T extends Command> {
         }
         output.println();
       }
+    }
+  }
+
+  private void updateCompleters() {
+    for (Completer completer : reader.getCompleters()) {
+      reader.removeCompleter(completer);
+    }
+    List<Completer> completerList = generateCompleters();
+    for (Completer completer : completerList) {
+      reader.addCompleter(completer);
     }
   }
 
