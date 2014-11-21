@@ -92,9 +92,8 @@ public class CLI<T extends Command> {
    * @param commands the commands to update
    */
   public void setCommands(Iterable<T> commands) {
-    removeCompleters();
     this.commands = new CommandSet<T>(commands);
-    addCompleters();
+    updateCompleters();
   }
 
   /**
@@ -103,9 +102,8 @@ public class CLI<T extends Command> {
    * @param completers the completers to update
    */
   public void setCompleters(Map<String, Completer> completers) {
-    removeCompleters();
     this.completers = new CompleterSet(completers);
-    addCompleters();
+    updateCompleters();
   }
 
   /**
@@ -138,7 +136,7 @@ public class CLI<T extends Command> {
    */
   public void startInteractiveMode(PrintStream output) throws IOException {
     this.reader.setHandleUserInterrupt(true);
-    addCompleters();
+    updateCompleters();
 
     while (true) {
       String line;
@@ -166,13 +164,10 @@ public class CLI<T extends Command> {
     }
   }
 
-  private void removeCompleters() {
+  private void updateCompleters() {
     for (Completer completer : reader.getCompleters()) {
       reader.removeCompleter(completer);
     }
-  }
-
-  private void addCompleters() {
     List<Completer> completerList = generateCompleters();
     for (Completer completer : completerList) {
       reader.addCompleter(completer);
