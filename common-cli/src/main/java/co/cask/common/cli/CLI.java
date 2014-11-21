@@ -54,9 +54,10 @@ import java.util.Map;
  */
 public class CLI<T extends Command> {
 
-  private final CommandSet<T> commands;
-  private final CompleterSet completers;
   private final ConsoleReader reader;
+
+  private CommandSet<T> commands;
+  private CompleterSet completers;
 
   private CLIExceptionHandler<Exception> exceptionHandler = new CLIExceptionHandler<Exception>() {
     @Override
@@ -83,6 +84,24 @@ public class CLI<T extends Command> {
    */
   public CLI(T... commands) throws IOException {
     this(ImmutableList.copyOf(commands), ImmutableMap.<String, Completer>of());
+  }
+
+  /**
+   * Set {@link CLI} {@link CommandSet}.
+   *
+   * @param commands the commands to update
+   */
+  public void setCommands(Iterable<T> commands) {
+    this.commands = new CommandSet<T>(commands);
+  }
+
+  /**
+   * Set {@link CLI} {@link CompleterSet}.
+   *
+   * @param completers the completers to update
+   */
+  public void setCompleaters(Map<String, Completer> completers) {
+    this.completers = new CompleterSet(completers);
   }
 
   /**
