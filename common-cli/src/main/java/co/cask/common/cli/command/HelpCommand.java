@@ -27,7 +27,7 @@ import java.io.PrintStream;
 import java.util.List;
 
 /**
- * Prints helper text for all commands.
+ * Prints usage information and description of commands.
  */
 public class HelpCommand implements Command {
 
@@ -78,6 +78,6 @@ public class HelpCommand implements Command {
 
   @Override
   public String getDescription() {
-    return "Prints this helper text";
+    return "Prints usage information and description of commands";
   }
 }
