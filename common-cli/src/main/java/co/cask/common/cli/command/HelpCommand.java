@@ -18,10 +18,9 @@ package co.cask.common.cli.command;
 
 import co.cask.common.cli.Arguments;
 import co.cask.common.cli.Command;
-import co.cask.common.cli.CommandMatch;
 import co.cask.common.cli.CommandSet;
-import co.cask.common.cli.exception.InvalidCommandException;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -36,12 +35,19 @@ public class HelpCommand implements Command {
   private final Supplier<CommandSet<Command>> getCommands;
   private final String helpHeader;
 
-  public HelpCommand(Supplier<CommandSet<Command>> getCommands) {
-    this(getCommands, null);
+  public HelpCommand(CommandSet<Command> commands) {
+    this(commands, null);
   }
 
-  public HelpCommand(Supplier<CommandSet<Command>> getCommands, String helpHeader) {
-    this.getCommands = getCommands;
+  public HelpCommand(CommandSet<Command> commands, String helpHeader) {
+    final CommandSet<Command> commandsWithHelp = new CommandSet<Command>(ImmutableList.of((Command) this),
+                                                                   ImmutableList.of(commands));
+    this.getCommands = new Supplier<CommandSet<Command>>() {
+      @Override
+      public CommandSet<Command> get() {
+        return commandsWithHelp;
+      }
+    };
     this.helpHeader = helpHeader;
   }
 
@@ -63,7 +69,7 @@ public class HelpCommand implements Command {
         printStream.println(helpHeader);
         printStream.println();
       }
-      printStream.println(String.format("Available commands: \n%s: %s", getPattern(), getDescription()));
+      printStream.println("Available commands:");
       for (Command command : getCommands.get()) {
         printStream.println(String.format("%s: %s", command.getPattern(), command.getDescription()));
       }

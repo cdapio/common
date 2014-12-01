@@ -75,7 +75,7 @@ public class CommandSet<T extends Command> implements Iterable<T> {
   }
 
   /**
-   * Finds a matching commands for the provided input.
+   * Finds matching commands for the provided input.
    *
    * @param input the input string
    * @return the matching commands

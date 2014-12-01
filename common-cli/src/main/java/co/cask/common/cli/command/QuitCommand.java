@@ -17,7 +17,7 @@
 package co.cask.common.cli.command;
 
 /**
- * Quits the cli.
+ * Quits the command-line interface.
  */
 public class QuitCommand extends AbstractExitCommand {
 
@@ -28,6 +28,6 @@ public class QuitCommand extends AbstractExitCommand {
 
   @Override
   public String getDescription() {
-    return "Quits the cli";
+    return "Quits the command-line interface";
   }
 }
