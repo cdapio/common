@@ -58,6 +58,7 @@ public class CLI<T extends Command> {
 
   private CommandSet<T> commands;
   private CompleterSet completers;
+  private List<UserInterruptHandler> userInterruptHandlers;
 
   private CLIExceptionHandler<Exception> exceptionHandler = new CLIExceptionHandler<Exception>() {
     @Override
@@ -76,6 +77,7 @@ public class CLI<T extends Command> {
     this.completers = new CompleterSet(completers);
     this.reader = new ConsoleReader();
     this.reader.setPrompt("cli> ");
+    userInterruptHandlers = Lists.newArrayList();
   }
 
   /**
@@ -144,6 +146,9 @@ public class CLI<T extends Command> {
       try {
         line = reader.readLine();
       } catch (UserInterruptException e) {
+        for (UserInterruptHandler handler : userInterruptHandlers) {
+          handler.onUserInterrupt();
+        }
         continue;
       }
 
@@ -268,4 +273,14 @@ public class CLI<T extends Command> {
     return completers.getCompleter(completerType);
   }
 
+  public void addUserInterruptHandler(UserInterruptHandler handler) {
+    this.userInterruptHandlers.add(handler);
+  }
+
+  /**
+   * Handler to handle user interrupt.
+   */
+  public interface UserInterruptHandler {
+    void onUserInterrupt() throws IOException;
+  }
 }
