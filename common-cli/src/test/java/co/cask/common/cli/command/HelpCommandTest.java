@@ -24,7 +24,6 @@ import co.cask.common.cli.CommandSet;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -94,16 +93,11 @@ public class HelpCommandTest {
     }
   };
 
-  private static CommandSet<Command> TEST_SET;
-  private static HelpCommand HELP_COMMAND;
-
-  @BeforeClass
-  public static void initialize() {
-    CommandSet<Command> commandSet = new CommandSet<Command>(ImmutableList.of(TEST_COMMAND1,
-                                                                              TEST_COMMAND2, TEST_COMMAND3));
-    HELP_COMMAND = new HelpCommand(commandSet, HELP_HEADER);
-    TEST_SET = new CommandSet<Command>(ImmutableList.of((Command) HELP_COMMAND), ImmutableList.of(commandSet));
-  }
+  private static final CommandSet<Command> TEST_COMMAND_SET =
+    new CommandSet<Command>(ImmutableList.of(TEST_COMMAND1, TEST_COMMAND2, TEST_COMMAND3));
+  private static final HelpCommand HELP_COMMAND = new HelpCommand(TEST_COMMAND_SET, HELP_HEADER);
+  private static final CommandSet<Command> TEST_SET =
+    new CommandSet<Command>(ImmutableList.<Command>of(HELP_COMMAND), ImmutableList.of(TEST_COMMAND_SET));
 
   @Test
   public void helpCommandTest() throws Exception {
