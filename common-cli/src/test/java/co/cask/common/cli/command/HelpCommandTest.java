@@ -94,41 +94,41 @@ public class HelpCommandTest {
     }
   };
 
-  private static CommandSet<Command> TEST_SET;
-  private static HelpCommand HELP_COMMAND;
+  private static CommandSet<Command> testSet;
+  private static HelpCommand helpCommand;
 
   @BeforeClass
   public static void initialize() {
     CommandSet<Command> commandSet = new CommandSet<Command>(ImmutableList.of(TEST_COMMAND1,
                                                                               TEST_COMMAND2, TEST_COMMAND3));
-    HELP_COMMAND = new HelpCommand(commandSet, HELP_HEADER);
-    TEST_SET = new CommandSet<Command>(ImmutableList.of((Command) HELP_COMMAND), ImmutableList.of(commandSet));
+    helpCommand = new HelpCommand(commandSet, HELP_HEADER);
+    testSet = new CommandSet<Command>(ImmutableList.of((Command) helpCommand), ImmutableList.of(commandSet));
   }
 
   @Test
   public void helpCommandTest() throws Exception {
-    CommandMatch match = TEST_SET.findMatch("help");
+    CommandMatch match = testSet.findMatch("help");
     testCommandOutput(match.getCommand(), match.getArguments(), createExpectedOutput(HELP_HEADER,
-                                                                                     HELP_COMMAND, TEST_COMMAND1,
+                                                                                     helpCommand, TEST_COMMAND1,
                                                                                      TEST_COMMAND2, TEST_COMMAND3));
   }
 
   @Test
   public void helpHelpCommandTest() throws Exception {
-    CommandMatch match = TEST_SET.findMatch("help help");
-    testCommandOutput(match.getCommand(), match.getArguments(), createExpectedOutput(null, HELP_COMMAND));
+    CommandMatch match = testSet.findMatch("help help");
+    testCommandOutput(match.getCommand(), match.getArguments(), createExpectedOutput(null, helpCommand));
   }
 
   @Test
   public void helpWithOptionalParamCommandTest() throws Exception {
-    CommandMatch match = TEST_SET.findMatch("help get");
+    CommandMatch match = testSet.findMatch("help get");
     testCommandOutput(match.getCommand(), match.getArguments(), createExpectedOutput(null,
                                                                                      TEST_COMMAND1, TEST_COMMAND2));
   }
 
   @Test
   public void helpWithOptionalParamNoCommandsCommandTest() throws Exception {
-    CommandMatch match = TEST_SET.findMatch("help set");
+    CommandMatch match = testSet.findMatch("help set");
     testCommandOutput(match.getCommand(), match.getArguments(),
                       String.format("No appropriate commands for pattern: %s%s%s", "set",
                                     System.getProperty("line.separator"), System.getProperty("line.separator")));
