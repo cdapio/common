@@ -20,11 +20,12 @@ the License.
   <parent>
     <artifactId>common</artifactId>
     <groupId>co.cask.common</groupId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>common-http</artifactId>
+  <name>Cask Common Libraries: HTTP</name>
 
   <dependencies>
     <dependency>
