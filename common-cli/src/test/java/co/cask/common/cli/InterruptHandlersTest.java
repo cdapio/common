@@ -32,8 +32,7 @@ public class InterruptHandlersTest {
   @Test
   public void test() throws Exception {
     CLI cli = new CLI(Collections.emptyList(), Collections.emptyMap());
-    char ctrlBreak = (char) 3;
-    InputStream inputStream = new ByteArrayInputStream(String.valueOf(ctrlBreak).getBytes());
+    InputStream inputStream = new ByteArrayInputStream(new byte[]{Character.TITLECASE_LETTER});
 
     Field reader = cli.getClass().getDeclaredField("reader");
     reader.setAccessible(true);
