@@ -17,23 +17,35 @@
 package co.cask.common.http;
 
 import co.cask.http.AbstractHttpHandler;
+import co.cask.http.BodyConsumer;
 import co.cask.http.HttpResponder;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.io.Files;
 import com.google.inject.matcher.Matcher;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -45,6 +57,9 @@ import static com.google.inject.matcher.Matchers.only;
  * Test base for {@link HttpRequests}.
  */
 public abstract class HttpRequestsTestBase {
+
+  @ClassRule
+  public static final TemporaryFolder TMP_FOLDER = new TemporaryFolder();
 
   protected abstract URI getBaseURI() throws URISyntaxException;
 
@@ -107,9 +122,22 @@ public abstract class HttpRequestsTestBase {
                         Matcher<Object> expectedResponseCode, Matcher<Object> expectedMessage,
                         Matcher<Object> expectedBody, Matcher<Object> expectedHeaders) throws Exception {
 
+    // Test string body
     URL url = getBaseURI().resolve(path).toURL();
     HttpRequest request = HttpRequest.post(url).addHeaders(headers).withBody(body).build();
     HttpResponse response = HttpRequests.execute(request, getHttpRequestsConfig());
+    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
+
+    // Test with ByteBuffer body.
+    request = HttpRequest.post(url).addHeaders(headers).withBody(Charsets.UTF_8.encode(body)).build();
+    response = HttpRequests.execute(request, getHttpRequestsConfig());
+    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
+
+    // Test with file body
+    File file = TMP_FOLDER.newFile();
+    Files.write(body, file, Charsets.UTF_8);
+    request = HttpRequest.post(url).addHeaders(headers).withBody(file).build();
+    response = HttpRequests.execute(request, getHttpRequestsConfig());
     verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
   }
 
@@ -148,7 +176,7 @@ public abstract class HttpRequestsTestBase {
     verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
   }
 
-  private void verifyResponse(HttpResponse response, Matcher<Object> expectedResponseCode,
+  protected void verifyResponse(HttpResponse response, Matcher<Object> expectedResponseCode,
                               Matcher<Object> expectedMessage, Matcher<Object> expectedBody,
                               Matcher<Object> expectedHeaders) {
 
@@ -172,6 +200,8 @@ public abstract class HttpRequestsTestBase {
 
   @Path("/api")
   public static final class TestHandler extends AbstractHttpHandler {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TestHandler.class);
 
     @GET
     @Path("/testHttpStatus")
@@ -249,7 +279,7 @@ public abstract class HttpRequestsTestBase {
     @Path("/testBadRequestWithErrorMessage")
     public void testBadRequestWithErrorMessage(org.jboss.netty.handler.codec.http.HttpRequest request,
                                                HttpResponder responder) throws Exception {
-      responder.sendError(HttpResponseStatus.BAD_REQUEST, "Cool error message");
+      responder.sendString(HttpResponseStatus.BAD_REQUEST, "Cool error message");
     }
 
     @GET
@@ -333,7 +363,7 @@ public abstract class HttpRequestsTestBase {
     @Path("/testBadRequestWithErrorMessage")
     public void testBadRequestWithErrorMessagePost(org.jboss.netty.handler.codec.http.HttpRequest request,
                                                    HttpResponder responder) throws Exception {
-      responder.sendError(HttpResponseStatus.BAD_REQUEST, "Cool error message");
+      responder.sendString(HttpResponseStatus.BAD_REQUEST, "Cool error message");
     }
 
     @POST
@@ -394,6 +424,37 @@ public abstract class HttpRequestsTestBase {
     public void testWrongMethod(org.jboss.netty.handler.codec.http.HttpRequest request,
                                 HttpResponder responder) throws Exception {
       responder.sendStatus(HttpResponseStatus.OK);
+    }
+
+    @POST
+    @Path("/testChunk")
+    public BodyConsumer testChunk(org.jboss.netty.handler.codec.http.HttpRequest request, HttpResponder responder,
+                                  @HeaderParam("X-Request-Accept") boolean accept) throws Exception {
+      if (!accept) {
+        responder.sendStatus(HttpResponseStatus.BAD_REQUEST,
+                             ImmutableMultimap.of(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE));
+        return null;
+      }
+
+      return new BodyConsumer() {
+
+        private ChannelBuffer buffer = ChannelBuffers.EMPTY_BUFFER;
+
+        @Override
+        public void chunk(ChannelBuffer request, HttpResponder responder) {
+          buffer = ChannelBuffers.wrappedBuffer(buffer, ChannelBuffers.copiedBuffer(request));
+        }
+
+        @Override
+        public void finished(HttpResponder responder) {
+          responder.sendBytes(HttpResponseStatus.OK, buffer.toByteBuffer(), null);
+        }
+
+        @Override
+        public void handleError(Throwable cause) {
+          LOG.error("Exception", cause);
+        }
+      };
     }
   }
 

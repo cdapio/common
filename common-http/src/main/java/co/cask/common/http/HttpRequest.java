@@ -41,13 +41,30 @@ public class HttpRequest {
   private final URL url;
   private final Multimap<String, String> headers;
   private final InputSupplier<? extends InputStream> body;
+  private final long contentLength;
 
   public HttpRequest(HttpMethod method, URL url, @Nullable Multimap<String, String> headers,
                      @Nullable InputSupplier<? extends InputStream> body) {
+    this(method, url, headers, body, -1L);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param method the HTTP method for the request
+   * @param url the endpoint for the request
+   * @param headers set of headers to add for the request
+   * @param body the request body
+   * @param contentLength size of the request body. If it is less than zero, the content length is
+   *                      unknown and chunk encoding will be used.
+   */
+  public HttpRequest(HttpMethod method, URL url, @Nullable Multimap<String, String> headers,
+                     @Nullable InputSupplier<? extends InputStream> body, long contentLength) {
     this.method = method;
     this.url = url;
     this.headers = headers;
     this.body = body;
+    this.contentLength = contentLength;
   }
 
   public static Builder get(URL url) {
@@ -71,7 +88,12 @@ public class HttpRequest {
   }
 
   public static Builder builder(HttpRequest request) {
-    return new Builder(request.method, request.url).addHeaders(request.getHeaders()).withBody(request.getBody());
+    Builder builder = new Builder(request.method, request.url)
+      .addHeaders(request.getHeaders())
+      .withBody(request.getBody());
+    builder.contentLength = request.getContentLength();
+
+    return builder;
   }
 
   public HttpMethod getMethod() {
@@ -92,6 +114,10 @@ public class HttpRequest {
     return body;
   }
 
+  public long getContentLength() {
+    return contentLength;
+  }
+
   /**
    * Builder for {@link HttpRequest}.
    */
@@ -100,6 +126,7 @@ public class HttpRequest {
     private final URL url;
     private final Multimap<String, String> headers = LinkedListMultimap.create();
     private InputSupplier<? extends InputStream> body;
+    private long contentLength = -1L;
 
     Builder(HttpMethod method, URL url) {
       this.method = method;
@@ -129,36 +156,45 @@ public class HttpRequest {
 
     public Builder withBody(InputSupplier<? extends InputStream> body) {
       this.body = body;
+      this.contentLength = -1L;
       return this;
     }
 
     public Builder withBody(File body) {
       this.body = Files.newInputStreamSupplier(body);
+      if (body.exists()) {
+        this.contentLength = body.length();
+      }
       return this;
     }
 
     public Builder withBody(String body) {
-      this.body = ByteStreams.newInputStreamSupplier(body.getBytes(Charsets.UTF_8));
-      return this;
+      return withBody(body, Charsets.UTF_8);
     }
 
     public Builder withBody(String body, Charset charset) {
-      this.body = ByteStreams.newInputStreamSupplier(body.getBytes(charset));
+      byte[] content = body.getBytes(charset);
+      this.body = ByteStreams.newInputStreamSupplier(content);
+      this.contentLength = content.length;
       return this;
     }
 
     public Builder withBody(final ByteBuffer body) {
+      final ByteBuffer buffer = body.duplicate();
+      buffer.mark();
       this.body = new InputSupplier<InputStream>() {
         @Override
         public InputStream getInput() throws IOException {
-          return new ByteBufferInputStream(body.duplicate());
+          buffer.reset();
+          return new ByteBufferInputStream(buffer);
         }
       };
+      this.contentLength = buffer.remaining();
       return this;
     }
 
     public HttpRequest build() {
-      return new HttpRequest(method, url, headers, body);
+      return new HttpRequest(method, url, headers, body, contentLength);
     }
   }
 }

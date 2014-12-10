@@ -48,8 +48,18 @@ import javax.net.ssl.X509TrustManager;
 public final class HttpRequests {
   private static final Logger LOG = LoggerFactory.getLogger(HttpRequests.class);
 
+  private static final HostnameVerifier TRUST_ALL_HOSTNAME_VERIFIER =
+    new HostnameVerifier() {
+      @Override
+      public boolean verify(String hostname, SSLSession session) {
+        return true;
+      }
+    };
+
   private static final AtomicReference<SSLSocketFactory> TRUST_ALL_SSL_FACTORY =
     new AtomicReference<SSLSocketFactory>();
+
+  private static final int CHUNK_SIZE = 4096;
 
   private HttpRequests() { }
 
@@ -79,6 +89,15 @@ public final class HttpRequests {
     InputSupplier<? extends InputStream> bodySrc = request.getBody();
     if (bodySrc != null) {
       conn.setDoOutput(true);
+      long contentLength = request.getContentLength();
+      if (contentLength >= 0 && contentLength <= Integer.MAX_VALUE) {
+        // If content length is known and is within integer range, use fixed length streaming mode.
+        // This will turn-off the internal buffering in HttpURLConnection
+        conn.setFixedLengthStreamingMode((int) contentLength);
+      } else {
+        // If the length is unknown or too large, use chunked encoding
+        conn.setChunkedStreamingMode(CHUNK_SIZE);
+      }
     }
 
     if (conn instanceof HttpsURLConnection && !requestConfig.isVerifySSLCert()) {
@@ -98,24 +117,23 @@ public final class HttpRequests {
         OutputStream os = conn.getOutputStream();
         try {
           ByteStreams.copy(bodySrc, os);
+        } catch (IOException e) {
+          // If failed to write, it can either be reading exception or writing exception, which we cannot
+          // determine here. Hence, we need to try to read response code first. If succeeded, then
+          // we assume it's the server responded and closed the connection, hence returning a valid HttpResponse.
+          // Otherwise, we throw the IOException we captured here.
+          try {
+            return createHttpResponse(conn);
+          } catch (IOException resEx) {
+            // Failed to get response, throw the original IOException
+            throw e;
+          }
         } finally {
           os.close();
         }
       }
 
-      try {
-        if (isSuccessful(conn.getResponseCode())) {
-          return new HttpResponse(conn.getResponseCode(), conn.getResponseMessage(),
-                                  ByteStreams.toByteArray(conn.getInputStream()), conn.getHeaderFields());
-        }
-      } catch (FileNotFoundException e) {
-        // Server returns 404. Hence handle as error flow below. Intentional having empty catch block.
-      }
-
-      // Non 2xx response
-      InputStream es = conn.getErrorStream();
-      byte[] content = (es == null) ? new byte[0] : ByteStreams.toByteArray(es);
-      return new HttpResponse(conn.getResponseCode(), conn.getResponseMessage(), content, conn.getHeaderFields());
+      return createHttpResponse(conn);
     } finally {
       conn.disconnect();
     }
@@ -168,11 +186,19 @@ public final class HttpRequests {
     conn.setHostnameVerifier(TRUST_ALL_HOSTNAME_VERIFIER);
   }
 
-  private static final HostnameVerifier TRUST_ALL_HOSTNAME_VERIFIER =
-    new HostnameVerifier() {
-      @Override
-      public boolean verify(String hostname, SSLSession session) {
-        return true;
+  private static HttpResponse createHttpResponse(HttpURLConnection conn) throws IOException {
+    try {
+      if (isSuccessful(conn.getResponseCode())) {
+        return new HttpResponse(conn.getResponseCode(), conn.getResponseMessage(),
+                                ByteStreams.toByteArray(conn.getInputStream()), conn.getHeaderFields());
       }
-    };
+    } catch (FileNotFoundException e) {
+      // Server returns 404. Hence handle as error flow below. Intentional having empty catch block.
+    }
+
+    // Non 2xx response
+    InputStream es = conn.getErrorStream();
+    byte[] content = (es == null) ? new byte[0] : ByteStreams.toByteArray(es);
+    return new HttpResponse(conn.getResponseCode(), conn.getResponseMessage(), content, conn.getHeaderFields());
+  }
 }
