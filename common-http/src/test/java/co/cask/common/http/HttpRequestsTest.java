@@ -17,15 +17,27 @@
 package co.cask.common.http;
 
 import co.cask.http.NettyHttpService;
+import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.AbstractIdleService;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.ByteBuffer;
+
+import static com.google.inject.matcher.Matchers.any;
+import static com.google.inject.matcher.Matchers.only;
 
 /**
  * Test for {@link HttpRequests} against HTTP.
@@ -49,6 +61,43 @@ public class HttpRequestsTest extends HttpRequestsTestBase {
   protected URI getBaseURI() throws URISyntaxException {
     InetSocketAddress bindAddress = httpService.getBindAddress();
     return new URI("http://" + bindAddress.getHostName() + ":" + bindAddress.getPort());
+  }
+
+  @Test
+  public void testChunk() throws Exception {
+    // This test only works in Http, but not in Https, as apparently Java SSLSocket implementation
+    // will throw away all pending bytes in the socket buffer when the ssl socket is closed.
+
+    // Send a request with never ending chunk, so that server will send 400
+    // and close connection upon seeing the request header
+    URL url = getBaseURI().resolve("/api/testChunk").toURL();
+    HttpRequest request = HttpRequest
+      .post(url)
+      .addHeader(HttpHeaders.Names.EXPECT, HttpHeaders.Values.CONTINUE)
+      .withBody(new InputSupplier<InputStream>() {
+        @Override
+        public InputStream getInput() throws IOException {
+          return new InputStream() {
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+              ByteBuffer encoded = Charsets.UTF_8.encode(Strings.repeat("0", len));
+              encoded.get(b, off, len);
+              return len;
+            }
+
+            @Override
+            public int read() throws IOException {
+              // This method never get called because the read(byte[], int, int) is overridden
+              return Character.forDigit(0, 10);
+            }
+          };
+        }
+      })
+      .build();
+
+    HttpResponse response = HttpRequests.execute(request, getHttpRequestsConfig());
+    verifyResponse(response, only(400), any(), any(), any());
   }
 
   @Override

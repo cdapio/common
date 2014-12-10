@@ -17,6 +17,7 @@
 package co.cask.common.http;
 
 import co.cask.http.NettyHttpService;
+import co.cask.http.SSLConfig;
 import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractIdleService;
@@ -73,7 +74,7 @@ public class HttpsRequestsTest extends HttpRequestsTestBase {
         .setWorkerThreadPoolSize(10)
         .setExecThreadPoolSize(10)
         .setConnectionBacklog(20000)
-        .enableSSL(new File(keystore.toURI()), "secret", "secret")
+        .enableSSL(SSLConfig.builder(new File(keystore.toURI()), "secret").setCertificatePassword("secret").build())
         .build();
     }
 
