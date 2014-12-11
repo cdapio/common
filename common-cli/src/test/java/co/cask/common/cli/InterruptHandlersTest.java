@@ -16,6 +16,7 @@
 
 package co.cask.common.cli;
 
+import com.google.common.io.Closeables;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,15 +34,18 @@ public class InterruptHandlersTest {
   public void test() throws Exception {
     CLI cli = new CLI(Collections.emptyList(), Collections.emptyMap());
     InputStream inputStream = new ByteArrayInputStream(new byte[]{Character.TITLECASE_LETTER});
+    try {
+      Field reader = cli.getClass().getDeclaredField("reader");
+      reader.setAccessible(true);
+      Method setInput = reader.getType().getDeclaredMethod("setInput", InputStream.class);
+      setInput.setAccessible(true);
+      setInput.invoke(cli.getReader(), inputStream);
 
-    Field reader = cli.getClass().getDeclaredField("reader");
-    reader.setAccessible(true);
-    Method setInput = reader.getType().getDeclaredMethod("setInput", InputStream.class);
-    setInput.setAccessible(true);
-    setInput.invoke(cli.getReader(), inputStream);
-
-    cli.addUserInterruptHandler(getUserInterruptHandler());
-    cli.startInteractiveMode(System.out);
+      cli.addUserInterruptHandler(getUserInterruptHandler());
+      cli.startInteractiveMode(System.out);
+    } finally {
+      Closeables.closeQuietly(inputStream);
+    }
     Assert.assertTrue(isUserInterruptHandled);
   }
 
