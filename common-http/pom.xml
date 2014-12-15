@@ -25,6 +25,7 @@ the License.
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>common-http</artifactId>
+  <name>Cask Common Libraries: HTTP</name>
 
   <dependencies>
     <dependency>

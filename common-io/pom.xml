@@ -25,6 +25,7 @@ the License.
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>common-io</artifactId>
+  <name>Cask Common Libraries: IO</name>
 
   <dependencies>
     <dependency>
