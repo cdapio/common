@@ -19,7 +19,7 @@ package co.cask.common.cli.supplier;
 import jline.console.completer.Completer;
 
 /**
- *
+ * Representation of mechanism for supplying {@link Completer} by command prefix.
  */
 public interface CompleterSupplier {
 

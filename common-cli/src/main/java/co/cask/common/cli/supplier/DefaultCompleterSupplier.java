@@ -20,7 +20,7 @@ import co.cask.common.cli.completers.PrefixCompleter;
 import jline.console.completer.Completer;
 
 /**
- *
+ * Default implementation {@link CompleterSupplier}.
  */
 public class DefaultCompleterSupplier implements CompleterSupplier {
 
