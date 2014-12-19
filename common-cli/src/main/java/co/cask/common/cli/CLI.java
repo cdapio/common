@@ -17,10 +17,11 @@
 package co.cask.common.cli;
 
 import co.cask.common.cli.completers.DefaultStringsCompleter;
-import co.cask.common.cli.completers.PrefixCompleter;
 import co.cask.common.cli.exception.CLIExceptionHandler;
 import co.cask.common.cli.exception.InvalidCommandException;
 import co.cask.common.cli.internal.TreeNode;
+import co.cask.common.cli.supplier.CompleterSupplier;
+import co.cask.common.cli.supplier.DefaultCompleterSupplier;
 import co.cask.common.cli.util.Parser;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -55,10 +56,12 @@ import java.util.Map;
 public class CLI<T extends Command> {
 
   private final ConsoleReader reader;
+  private final CompleterSupplier defaultCompleterSupplier;
 
   private CommandSet<T> commands;
   private CompleterSet completers;
   private List<UserInterruptHandler> userInterruptHandlers;
+  private List<CompleterSupplier> completerSuppliers;
 
   private CLIExceptionHandler<Exception> exceptionHandler = new CLIExceptionHandler<Exception>() {
     @Override
@@ -77,6 +80,8 @@ public class CLI<T extends Command> {
     this.completers = new CompleterSet(completers);
     this.reader = new ConsoleReader();
     this.reader.setPrompt("cli> ");
+    this.defaultCompleterSupplier = new DefaultCompleterSupplier();
+    this.completerSuppliers = Lists.newArrayList();
     userInterruptHandlers = Lists.newArrayList();
   }
 
@@ -235,11 +240,13 @@ public class CLI<T extends Command> {
         String completerType = getEntry(argumentToken);
         Completer argumentCompleter = getCompleterForType(completerType);
         if (argumentCompleter != null) {
-          completers.add(prefixCompleterIfNeeded(childPrefix, argumentCompleter));
+          completers.add(getCompleter(childPrefix, argumentCompleter));
         }
       }
 
-      completers.add(prefixCompleterIfNeeded(childPrefix, new DefaultStringsCompleter(nonArgumentTokens)));
+      if (!nonArgumentTokens.isEmpty()) {
+        completers.add(getCompleter(childPrefix, new DefaultStringsCompleter(nonArgumentTokens)));
+      }
 
       for (TreeNode<String> child : commandTokenTree.getChildren()) {
         completers.addAll(generateCompleters(childPrefix, child));
@@ -261,12 +268,19 @@ public class CLI<T extends Command> {
     return input.substring(1, input.length() - 1);
   }
 
-  private Completer prefixCompleterIfNeeded(String prefix, Completer completer) {
-    if (prefix != null && !prefix.isEmpty()) {
-      return new PrefixCompleter(prefix, completer);
-    } else {
-      return completer;
+  private Completer getCompleter(String prefix, Completer completer) {
+    Completer customCompleter;
+    for (CompleterSupplier supplier : completerSuppliers) {
+      customCompleter = supplier.getCompleter(prefix, completer);
+      if (customCompleter != null) {
+        return customCompleter;
+      }
     }
+    return defaultCompleterSupplier.getCompleter(prefix, completer);
+  }
+
+  public void addCompleterSupplier(CompleterSupplier completerSupplier) {
+    this.completerSuppliers.add(completerSupplier);
   }
 
   private Completer getCompleterForType(String completerType) {
