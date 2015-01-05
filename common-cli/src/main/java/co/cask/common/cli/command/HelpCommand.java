@@ -19,6 +19,8 @@ package co.cask.common.cli.command;
 import co.cask.common.cli.Arguments;
 import co.cask.common.cli.Command;
 import co.cask.common.cli.CommandSet;
+import co.cask.common.cli.util.DefaultHelpFormatter;
+import co.cask.common.cli.util.HelpFormatter;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 
@@ -34,21 +36,34 @@ public class HelpCommand implements Command {
 
   private final Supplier<CommandSet<Command>> getCommands;
   private final String helpHeader;
+  private final HelpFormatter helpFormatter;
 
   public HelpCommand(CommandSet<Command> commands) {
-    this(commands, null);
+    this(commands, null, null);
   }
 
   public HelpCommand(CommandSet<Command> commands, String helpHeader) {
-    final CommandSet<Command> commandsWithHelp = new CommandSet<Command>(ImmutableList.of((Command) this),
-                                                                   ImmutableList.of(commands));
+    this(commands, helpHeader, null);
+  }
+
+  public HelpCommand(CommandSet<Command> commands, String helpHeader, HelpFormatter helpFormatter) {
+    final CommandSet<Command> commandsWithHelp =
+      new CommandSet<Command>(ImmutableList.of((Command) this), ImmutableList.of(commands));
+
     this.getCommands = new Supplier<CommandSet<Command>>() {
       @Override
       public CommandSet<Command> get() {
         return commandsWithHelp;
       }
     };
+
     this.helpHeader = helpHeader;
+
+    if (helpFormatter == null) {
+      this.helpFormatter = new DefaultHelpFormatter();
+    } else {
+      this.helpFormatter = helpFormatter;
+    }
   }
 
   @Override
@@ -59,20 +74,14 @@ public class HelpCommand implements Command {
       if (commands.isEmpty()) {
         printStream.println(String.format("No appropriate commands for pattern: %s", input));
       } else {
-        printStream.println("Available commands:");
-        for (Command command : commands) {
-          printStream.println(String.format("%s: %s", command.getPattern(), command.getDescription()));
-        }
+        helpFormatter.print(commands, printStream);
       }
     } else {
       if (helpHeader != null) {
         printStream.println(helpHeader);
         printStream.println();
       }
-      printStream.println("Available commands:");
-      for (Command command : getCommands.get()) {
-        printStream.println(String.format("%s: %s", command.getPattern(), command.getDescription()));
-      }
+      helpFormatter.print(getCommands.get(), printStream);
     }
     printStream.println();
   }
