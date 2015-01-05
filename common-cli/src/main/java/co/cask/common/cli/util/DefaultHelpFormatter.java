@@ -54,7 +54,7 @@ public class DefaultHelpFormatter implements HelpFormatter {
         printStream.println(String.format("%s", previousCommandName));
       }
 
-      printStream.println(String.format("  • %s: %s", command.getPattern(), command.getDescription()));
+      printStream.println(String.format("  * %s: %s", command.getPattern(), command.getDescription()));
     }
   }
 }

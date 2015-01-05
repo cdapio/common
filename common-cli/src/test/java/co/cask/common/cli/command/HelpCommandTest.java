@@ -143,7 +143,7 @@ public class HelpCommandTest {
       } else if (command == TEST_COMMAND3) {
         builder.append("list").append(System.getProperty("line.separator"));
       }
-      builder.append(String.format("  • %s: %s", command.getPattern(), command.getDescription()))
+      builder.append(String.format("  * %s: %s", command.getPattern(), command.getDescription()))
         .append(System.getProperty("line.separator"));
     }
     builder.append(System.getProperty("line.separator"));
