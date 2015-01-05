@@ -69,11 +69,13 @@ the License.
     <module>common-cli</module>
     <module>common-http</module>
     <module>common-io</module>
+    <module>common-authorization</module>
     <module>common-config</module>
     <module>common</module>
   </modules>
 
   <properties>
+    <cglib.version>3.1</cglib.version>
     <findbugs.jsr305.version>2.0.1</findbugs.jsr305.version>
     <guava.version>13.0.1</guava.version>
     <guice.version>3.0</guice.version>
@@ -83,6 +85,7 @@ the License.
     <jline.version>2.12</jline.version>
     <junit.version>4.11</junit.version>
     <slf4j.version>1.7.5</slf4j.version>
+    <twill.version>0.4.0-incubating</twill.version>
   </properties>
 
   <dependencyManagement>
@@ -108,9 +111,24 @@ the License.
         <version>${findbugs.jsr305.version}</version>
       </dependency>
       <dependency>
+        <groupId>cglib</groupId>
+        <artifactId>cglib</artifactId>
+        <version>${cglib.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.twill</groupId>
+        <artifactId>twill-discovery-api</artifactId>
+        <version>${twill.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.twill</groupId>
+        <artifactId>twill-discovery-core</artifactId>
+        <version>${twill.version}</version>
       </dependency>
       <dependency>
         <groupId>jline</groupId>
