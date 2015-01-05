@@ -20,7 +20,7 @@ package co.cask.common.http;
  */
 public class HttpRequestConfig {
 
-  public static final HttpRequestConfig DEFAULT = new HttpRequestConfig(0, 0);
+  public static final HttpRequestConfig DEFAULT = new HttpRequestConfig(15000, 15000);
 
   private final int connectTimeout;
   private final int readTimeout;
