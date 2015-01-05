@@ -35,10 +35,10 @@ import java.io.PrintStream;
 public class HelpCommandTest {
 
   private static final String HELP_HEADER = "Help header";
-  private static final String TEST_COMMAND1_PATTERN = "get something <param>";
-  private static final String TEST_COMMAND1_DESCRIPTION = "Test command 1 description";
-  private static final String TEST_COMMAND2_PATTERN = "get another thing";
-  private static final String TEST_COMMAND2_DESCRIPTION = "Test command 2 description";
+  private static final String TEST_COMMAND1_PATTERN = "get another thing";
+  private static final String TEST_COMMAND1_DESCRIPTION = "Test command 2 description";
+  private static final String TEST_COMMAND2_PATTERN = "get something <param>";
+  private static final String TEST_COMMAND2_DESCRIPTION = "Test command 1 description";
   private static final String TEST_COMMAND3_PATTERN = "list of something <param> [<optional>]";
   private static final String TEST_COMMAND3_DESCRIPTION = "Test command 3 description";
   private static final Command TEST_COMMAND1 = new Command() {
@@ -103,8 +103,8 @@ public class HelpCommandTest {
   public void helpCommandTest() throws Exception {
     CommandMatch match = TEST_SET.findMatch("help");
     testCommandOutput(match.getCommand(), match.getArguments(), createExpectedOutput(HELP_HEADER,
-                                                                                     HELP_COMMAND, TEST_COMMAND1,
-                                                                                     TEST_COMMAND2, TEST_COMMAND3));
+                                                                                     TEST_COMMAND1, TEST_COMMAND2,
+                                                                                     HELP_COMMAND, TEST_COMMAND3));
   }
 
   @Test
@@ -136,7 +136,14 @@ public class HelpCommandTest {
     }
     builder.append("Available commands:").append(System.getProperty("line.separator"));
     for (Command command : commands) {
-      builder.append(String.format("%s: %s", command.getPattern(), command.getDescription()))
+      if (command == HELP_COMMAND) {
+        builder.append("help").append(System.getProperty("line.separator"));
+      } else if (command == TEST_COMMAND1) {
+        builder.append("get").append(System.getProperty("line.separator"));
+      } else if (command == TEST_COMMAND3) {
+        builder.append("list").append(System.getProperty("line.separator"));
+      }
+      builder.append(String.format("  * %s: %s", command.getPattern(), command.getDescription()))
         .append(System.getProperty("line.separator"));
     }
     builder.append(System.getProperty("line.separator"));
