@@ -97,7 +97,8 @@ public class ACLManagerServiceTest {
     Set<ACLEntry> beforeAcls = aclManagerClient.getACLs(namespaceId, new ACLStore.Query(objectId, currentUser));
     Assert.assertEquals(1, beforeAcls.size());
 
-    aclManagerClient.deleteACLs(namespaceId, new ACLStore.Query(entry));
+    int numDeleted = aclManagerClient.deleteACLs(namespaceId, new ACLStore.Query(entry));
+    Assert.assertEquals(1, numDeleted);
 
     Set<ACLEntry> afterAcls = aclManagerClient.getACLs(namespaceId, new ACLStore.Query(objectId, currentUser));
     Assert.assertEquals(0, afterAcls.size());
