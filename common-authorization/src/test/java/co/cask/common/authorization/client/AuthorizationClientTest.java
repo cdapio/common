@@ -20,13 +20,13 @@ import co.cask.common.authorization.ACLEntry;
 import co.cask.common.authorization.ACLStore;
 import co.cask.common.authorization.AuthorizationContext;
 import co.cask.common.authorization.DefaultAuthorizationContext;
+import co.cask.common.authorization.NamespaceId;
 import co.cask.common.authorization.ObjectId;
 import co.cask.common.authorization.SubjectId;
 import co.cask.common.authorization.TestPermissions;
 import co.cask.common.authorization.TestStreamId;
 import co.cask.common.authorization.UserId;
 import co.cask.common.authorization.guice.AuthorizationRuntimeModule;
-import co.cask.common.authorization.guice.CGLibAuthorizationProxyRuntimeModule;
 import co.cask.common.authorization.guice.DiscoveryRuntimeModule;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
@@ -57,7 +57,8 @@ public class AuthorizationClientTest {
   @Test
   public void testAuthorized() throws IOException {
     UserId currentUser = new UserId("bob");
-    ObjectId objectId = new TestStreamId("someStream");
+    NamespaceId namespaceId = new NamespaceId("someNamespace");
+    ObjectId objectId = new TestStreamId(namespaceId, "someStream");
 
     aclStore.write(new ACLEntry(objectId, currentUser, TestPermissions.WRITE));
     authorizationClient.authorize(objectId, ImmutableSet.<SubjectId>of(currentUser),
@@ -68,7 +69,8 @@ public class AuthorizationClientTest {
   public void testCurrentUserAuthorized() throws IOException {
     UserId currentUser = new UserId("bob");
     authorizationContext.set(currentUser);
-    ObjectId objectId = new TestStreamId("someStream");
+    NamespaceId namespaceId = new NamespaceId("someNamespace");
+    ObjectId objectId = new TestStreamId(namespaceId, "someStream");
 
     aclStore.write(new ACLEntry(objectId, currentUser, TestPermissions.WRITE));
     authorizationClient.authorizeCurrentUser(objectId, ImmutableSet.of(TestPermissions.WRITE));
@@ -78,7 +80,6 @@ public class AuthorizationClientTest {
     return Guice.createInjector(
       new DiscoveryRuntimeModule().getInMemoryModules(),
       new AuthorizationRuntimeModule().getInMemoryModules(),
-      new CGLibAuthorizationProxyRuntimeModule(),
       new AbstractModule() {
         @Override
         protected void configure() {

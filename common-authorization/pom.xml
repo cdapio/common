@@ -47,10 +47,6 @@ the License.
       <artifactId>guice</artifactId>
     </dependency>
     <dependency>
-      <groupId>cglib</groupId>
-      <artifactId>cglib</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.apache.twill</groupId>
       <artifactId>twill-discovery-api</artifactId>
     </dependency>

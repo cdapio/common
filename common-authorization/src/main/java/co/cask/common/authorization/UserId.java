@@ -15,67 +15,19 @@
  */
 package co.cask.common.authorization;
 
-import com.google.common.base.Objects;
-
 /**
  *
  */
-public class UserId implements SubjectId {
+public class UserId extends SubjectId {
 
-  public static final UserId ANON = new UserId(null) {
+  public static final UserId ANON = new UserId("") {
     @Override
-    public String getId() {
-      return "anonuser://";
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode("anonuser://");
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null || getClass() != obj.getClass()) {
-        return false;
-      }
-      final UserId other = (UserId) obj;
-      return Objects.equal("anonuser:", other.getId());
+    public String getType() {
+      return "anonuser";
     }
   };
 
-  private final String id;
-
   public UserId(String id) {
-    this.id = id;
-  }
-
-  @Override
-  public String getId() {
-    return "user:" + id;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(id);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    final UserId other = (UserId) obj;
-    return Objects.equal(this.id, other.id);
-  }
-
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(this).add("id", id).toString();
+    super("user", id);
   }
 }

@@ -15,11 +15,9 @@
  */
 package co.cask.common.authorization;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.SetMultimap;
+import com.google.common.collect.Sets;
 
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -27,68 +25,70 @@ import java.util.Set;
  */
 public class InMemoryACLStore implements ACLStore {
 
-  // (ObjectId, SubjectId) -> set of Permission
-  private final SetMultimap<Key, String> store = LinkedHashMultimap.create();
+  private Set<ACLEntry> store = Sets.newHashSet();
 
   @Override
   public boolean write(ACLEntry entry) {
-    Key key = new Key(entry.getObject(), entry.getSubject());
-    return store.put(key, entry.getPermission());
+    return store.add(entry);
   }
 
   @Override
   public boolean exists(ACLEntry entry) {
-    Key key = new Key(entry.getObject(), entry.getSubject());
-    return store.containsKey(key);
-  }
-
-  @Override
-  public Set<ACLEntry> read(ObjectId objectId, SubjectId subjectId) {
-    Key key = new Key(objectId, subjectId);
-    Set<String> permissions = store.get(key);
-
-    ImmutableSet.Builder<ACLEntry> builder = ImmutableSet.builder();
-    for (String permission : permissions) {
-      builder.add(new ACLEntry(objectId, subjectId, permission));
-    }
-    return builder.build();
+    return store.contains(entry);
   }
 
   @Override
   public boolean delete(ACLEntry entry) {
-    Key key = new Key(entry.getObject(), entry.getSubject());
-    Set<String> permissions = store.get(key);
-    return permissions.remove(entry.getPermission());
+    return store.remove(entry);
   }
 
-  /**
-   * (ObjectId, SubjectId)
-   */
-  private static class Key {
-    private final ObjectId objectId;
-    private final SubjectId subjectId;
+  @Override
+  public Set<ACLEntry> read(Query query) {
+    Set<ACLEntry> result = Sets.newHashSet();
 
-    private Key(ObjectId objectId, SubjectId subjectId) {
-      this.objectId = objectId;
-      this.subjectId = subjectId;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(objectId, subjectId);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) {
-        return true;
+    for (ACLEntry aclEntry : store) {
+      if (query.getObjectId() != null && !query.getObjectId().equals(aclEntry.getObject())) {
+        break;
       }
-      if (obj == null || getClass() != obj.getClass()) {
-        return false;
+
+      if (query.getSubjectId() != null && !query.getSubjectId().equals(aclEntry.getSubject())) {
+        break;
       }
-      final Key other = (Key) obj;
-      return Objects.equal(this.objectId, other.objectId)
-        && Objects.equal(this.subjectId, other.subjectId);
+
+      if (query.getPermission() != null && !query.getPermission().equals(aclEntry.getPermission())) {
+        break;
+      }
+
+      result.add(aclEntry);
     }
+
+    return result;
+  }
+
+  @Override
+  public int delete(Query query) {
+    int numDeleted = 0;
+
+    Iterator<ACLEntry> iterator = store.iterator();
+    while (iterator.hasNext()) {
+      ACLEntry aclEntry = iterator.next();
+
+      if (query.getObjectId() != null && !query.getObjectId().equals(aclEntry.getObject())) {
+        break;
+      }
+
+      if (query.getSubjectId() != null && !query.getSubjectId().equals(aclEntry.getSubject())) {
+        break;
+      }
+
+      if (query.getPermission() != null && !query.getPermission().equals(aclEntry.getPermission())) {
+        break;
+      }
+
+      iterator.remove();
+      numDeleted++;
+    }
+
+    return numDeleted;
   }
 }

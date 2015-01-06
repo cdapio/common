@@ -17,18 +17,17 @@
 package co.cask.common.authorization.server;
 
 import co.cask.common.authorization.ACLEntry;
+import co.cask.common.authorization.ACLStore;
 import co.cask.common.authorization.AuthorizationContext;
-import co.cask.common.authorization.CustomTypeManager;
 import co.cask.common.authorization.DefaultAuthorizationContext;
+import co.cask.common.authorization.NamespaceId;
 import co.cask.common.authorization.ObjectId;
-import co.cask.common.authorization.SubjectId;
 import co.cask.common.authorization.TestPermissions;
 import co.cask.common.authorization.TestStreamId;
 import co.cask.common.authorization.UserId;
 import co.cask.common.authorization.client.ACLManagerClient;
 import co.cask.common.authorization.guice.ACLManagerClientRuntimeModule;
 import co.cask.common.authorization.guice.AuthorizationRuntimeModule;
-import co.cask.common.authorization.guice.CGLibAuthorizationProxyRuntimeModule;
 import co.cask.common.authorization.guice.DiscoveryRuntimeModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -68,14 +67,16 @@ public class ACLManagerServiceTest {
   @Test
   public void testSet() throws IOException {
     UserId currentUser = new UserId("bob");
-    ObjectId objectId = new TestStreamId("someStream");
+    NamespaceId namespaceId = new NamespaceId("someNamespace");
+    ObjectId objectId = new TestStreamId(namespaceId, "someStream");
 
-    Set<ACLEntry> beforeAcls = aclManagerClient.getACLs(objectId, currentUser);
+    Set<ACLEntry> beforeAcls = aclManagerClient.getACLs(namespaceId, new ACLStore.Query(objectId, currentUser));
     Assert.assertEquals(0, beforeAcls.size());
 
-    aclManagerClient.setACL(objectId, currentUser, TestPermissions.WRITE);
+    ACLEntry entry = new ACLEntry(objectId, currentUser, TestPermissions.WRITE);
+    aclManagerClient.createACL(namespaceId, entry);
 
-    Set<ACLEntry> afterAcls = aclManagerClient.getACLs(objectId, currentUser);
+    Set<ACLEntry> afterAcls = aclManagerClient.getACLs(namespaceId, new ACLStore.Query(objectId, currentUser));
     Assert.assertEquals(1, afterAcls.size());
     ACLEntry afterAcl = afterAcls.iterator().next();
     Assert.assertEquals(currentUser, afterAcl.getSubject());
@@ -87,16 +88,18 @@ public class ACLManagerServiceTest {
   public void testDelete() throws IOException {
     UserId currentUser = new UserId("bob");
     authorizationContext.set(currentUser);
-    ObjectId objectId = new TestStreamId("someStream");
+    NamespaceId namespaceId = new NamespaceId("someNamespace");
+    ObjectId objectId = new TestStreamId(namespaceId, "someStream");
 
-    aclManagerClient.setACL(objectId, currentUser, TestPermissions.WRITE);
+    ACLEntry entry = new ACLEntry(objectId, currentUser, TestPermissions.WRITE);
+    aclManagerClient.createACL(namespaceId, entry);
 
-    Set<ACLEntry> beforeAcls = aclManagerClient.getACLs(objectId, currentUser);
+    Set<ACLEntry> beforeAcls = aclManagerClient.getACLs(namespaceId, new ACLStore.Query(objectId, currentUser));
     Assert.assertEquals(1, beforeAcls.size());
 
-    aclManagerClient.deleteACL(objectId, currentUser, TestPermissions.WRITE);
+    aclManagerClient.deleteACL(namespaceId, entry);
 
-    Set<ACLEntry> afterAcls = aclManagerClient.getACLs(objectId, currentUser);
+    Set<ACLEntry> afterAcls = aclManagerClient.getACLs(namespaceId, new ACLStore.Query(objectId, currentUser));
     Assert.assertEquals(0, afterAcls.size());
   }
 
@@ -106,33 +109,11 @@ public class ACLManagerServiceTest {
         @Override
         protected void configure() {
           bind(AuthorizationContext.class).toInstance(context);
-          bind(CustomTypeManager.class).toInstance(new CustomTypeManager() {
-            @Override
-            public ObjectId fromObjectIdString(String objectId) {
-              if (objectId.startsWith("stream:")) {
-                return new TestStreamId(objectId.substring("stream:".length()));
-              }
-
-              throw new IllegalArgumentException("Unknown objectId: " + objectId);
-            }
-
-            @Override
-            public SubjectId fromSubjectIdString(String subjectId) {
-              if (subjectId.startsWith("user:")) {
-                return new UserId(subjectId.substring("user:".length()));
-              } else if (subjectId.startsWith("group:")) {
-                return new UserId(subjectId.substring("group:".length()));
-              }
-
-              throw new IllegalArgumentException("Unknown subjectId: " + subjectId);
-            }
-          });
         }
       },
       new DiscoveryRuntimeModule().getInMemoryModules(),
       new AuthorizationRuntimeModule().getInMemoryModules(),
-      new ACLManagerClientRuntimeModule().getInMemoryModules(),
-      new CGLibAuthorizationProxyRuntimeModule()
+      new ACLManagerClientRuntimeModule().getInMemoryModules()
     );
   }
 }

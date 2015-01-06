@@ -15,42 +15,13 @@
  */
 package co.cask.common.authorization;
 
-import com.google.common.base.Objects;
-
 /**
  *
  */
-public class GroupId implements SubjectId {
-
-  private final String id;
+public class GroupId extends SubjectId {
 
   public GroupId(String id) {
-    this.id = id;
+    super("group", id);
   }
 
-  public String getId() {
-    return "group:" + id;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(id);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    final GroupId other = (GroupId) obj;
-    return Objects.equal(this.id, other.id);
-  }
-
-  @Override
-  public String toString() {
-    return Objects.toStringHelper(this).add("id", id).toString();
-  }
 }

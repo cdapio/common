@@ -75,7 +75,6 @@ the License.
   </modules>
 
   <properties>
-    <cglib.version>3.1</cglib.version>
     <findbugs.jsr305.version>2.0.1</findbugs.jsr305.version>
     <guava.version>13.0.1</guava.version>
     <guice.version>3.0</guice.version>
@@ -109,11 +108,6 @@ the License.
         <groupId>com.google.code.findbugs</groupId>
         <artifactId>jsr305</artifactId>
         <version>${findbugs.jsr305.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>cglib</groupId>
-        <artifactId>cglib</artifactId>
-        <version>${cglib.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>

@@ -15,9 +15,56 @@
  */
 package co.cask.common.authorization;
 
+import com.google.common.base.Objects;
+
 /**
  *
  */
-public interface SubjectId {
-  String getId();
+public class SubjectId {
+
+  private final String id;
+  private final String type;
+
+  public SubjectId(String type, String id) {
+    this.type = type;
+    this.id = id;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public String getId() {
+    return this.id;
+  }
+
+  public String getRep() {
+    return type + ":" + id;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(id);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final SubjectId other = (SubjectId) obj;
+    return Objects.equal(this.id, other.id) &&
+      Objects.equal(this.type, other.type);
+  }
+
+  @Override
+  public String toString() {
+    return Objects.toStringHelper(this)
+      .add("type", type)
+      .add("id", id)
+      .toString();
+  }
 }

@@ -83,7 +83,7 @@ public class DefaultAuthorizationClient implements AuthorizationClient {
     Set<String> remainingRequiredPermission = Sets.newHashSet(requiredPermissions);
     for (ObjectId object : objects) {
       for (SubjectId subject : subjects) {
-        for (ACLEntry aclEntry : aclStore.read(object, subject)) {
+        for (ACLEntry aclEntry : aclStore.read(new ACLStore.Query(object, subject))) {
           remainingRequiredPermission.remove(aclEntry.getPermission());
         }
       }
@@ -97,7 +97,7 @@ public class DefaultAuthorizationClient implements AuthorizationClient {
 
     Set<String> remainingRequiredPermission = Sets.newHashSet(requiredPermissions);
     for (SubjectId subject : subjects) {
-      for (ACLEntry aclEntry : aclStore.read(object, subject)) {
+      for (ACLEntry aclEntry : aclStore.read(new ACLStore.Query(object, subject))) {
         remainingRequiredPermission.remove(aclEntry.getPermission());
       }
     }

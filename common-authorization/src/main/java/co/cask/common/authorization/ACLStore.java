@@ -23,7 +23,7 @@ import java.util.Set;
 public interface ACLStore {
 
   /**
-   * Writes an {@link ACLEntry}.
+   * Writes a single {@link ACLEntry}.
    *
    * @param entry the {@link ACLEntry} to write
    * @return true if entry did not previously exist
@@ -39,19 +39,58 @@ public interface ACLStore {
   boolean exists(ACLEntry entry);
 
   /**
-   * Fetches a set of {@link ACLEntry}s by {@code object} and {@code subject}.
-   *
-   * @param objectId the relevant object
-   * @param subjectId the relevant subject
-   * @return the {@link ACLEntry}s that have the {@code object} and {@code subject}.
-   */
-  Set<ACLEntry> read(ObjectId objectId, SubjectId subjectId);
-
-  /**
-   * Deletes an {@link ACLEntry}.
+   * Deletes an {@link ACLEntry} matching.
    *
    * @param entry the {@link ACLEntry} to delete
-   * @return true if the entry did not previously exist
+   * @return true if the {@link ACLEntry} previously existed
    */
   boolean delete(ACLEntry entry);
+
+  /**
+   * Fetches {@link ACLEntry}s matching the specified {@link Query}.
+   *
+   * @param query specifies the {@link ACLEntry}s to read
+   * @return the {@link ACLEntry}s that have the {@code object}.
+   */
+  Set<ACLEntry> read(Query query);
+
+  /**
+   * Deletes {@link ACLEntry}s matching the specified {@link Query}.
+   *
+   * @param query specifies the {@link ACLEntry}s to delete
+   * @return the number of {@link ACLEntry}s deleted
+   */
+  int delete(Query query);
+
+  /**
+   *
+   */
+  public class Query {
+
+    private final ObjectId objectId;
+    private final SubjectId subjectId;
+    private final String permission;
+
+    public Query(ObjectId objectId, SubjectId subjectId, String permission) {
+      this.objectId = objectId;
+      this.subjectId = subjectId;
+      this.permission = permission;
+    }
+
+    public Query(ObjectId objectId, SubjectId subjectId) {
+      this(objectId, subjectId, null);
+    }
+
+    public ObjectId getObjectId() {
+      return objectId;
+    }
+
+    public SubjectId getSubjectId() {
+      return subjectId;
+    }
+
+    public String getPermission() {
+      return permission;
+    }
+  }
 }

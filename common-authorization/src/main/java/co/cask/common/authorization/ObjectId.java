@@ -15,9 +15,77 @@
  */
 package co.cask.common.authorization;
 
+import com.google.common.base.Objects;
+
 /**
  *
  */
-public interface ObjectId {
-  String getId();
+public class ObjectId {
+
+  public static final ObjectId GLOBAL = new ObjectId(null, "global", "");
+
+  private ObjectId parent;
+  private String type;
+  private String id;
+
+  public ObjectId(ObjectId parent, String type, String id) {
+    this.parent = parent;
+    this.type = type;
+    this.id = id;
+  }
+
+  public ObjectId(String type, String id) {
+    this.parent = ObjectId.GLOBAL;
+    this.type = type;
+    this.id = id;
+  }
+
+  public String getRep() {
+    return type + ":" + id;
+  }
+
+  public void setParent(ObjectId parent) {
+    this.parent = parent;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public ObjectId getParent() {
+    return parent;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(parent, type, id);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+
+    final ObjectId other = (ObjectId) obj;
+    return Objects.equal(this.parent, other.parent) &&
+      Objects.equal(this.type, other.type) &&
+      Objects.equal(this.id, other.id);
+  }
 }

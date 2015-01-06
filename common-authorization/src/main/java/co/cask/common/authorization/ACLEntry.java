@@ -15,6 +15,8 @@
  */
 package co.cask.common.authorization;
 
+import com.google.common.base.Objects;
+
 /**
  * An Access Control List (ACL) entry, which allows the {@link #subject}
  * access to {@link #object} for a {@link #permission}.
@@ -28,9 +30,9 @@ package co.cask.common.authorization;
  */
 public class ACLEntry {
 
-  private final ObjectId object;
-  private final SubjectId subject;
-  private final String permission;
+  private ObjectId object;
+  private SubjectId subject;
+  private String permission;
 
   public ACLEntry(ObjectId object, SubjectId subject, String permission) {
     this.object = object;
@@ -48,5 +50,36 @@ public class ACLEntry {
 
   public String getPermission() {
     return permission;
+  }
+
+  public void setObject(ObjectId object) {
+    this.object = object;
+  }
+
+  public void setSubject(SubjectId subject) {
+    this.subject = subject;
+  }
+
+  public void setPermission(String permission) {
+    this.permission = permission;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(object, subject, permission);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final ACLEntry other = (ACLEntry) obj;
+    return Objects.equal(this.object, other.object) &&
+      Objects.equal(this.subject, other.subject) &&
+      Objects.equal(this.permission, other.permission);
   }
 }

@@ -15,38 +15,13 @@
  */
 package co.cask.common.authorization;
 
-import com.google.common.base.Objects;
-
 /**
  *
  */
-public class TestStreamId implements ObjectId {
+public class TestStreamId extends ObjectId {
 
-  private final String id;
-
-  public TestStreamId(String id) {
-    this.id = id;
+  public TestStreamId(NamespaceId namespaceId, String id) {
+    super(namespaceId, "stream", id);
   }
 
-  @Override
-  public String getId() {
-    return "stream:" + id;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(id);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
-    final TestStreamId other = (TestStreamId) obj;
-    return Objects.equal(this.id, other.id);
-  }
 }

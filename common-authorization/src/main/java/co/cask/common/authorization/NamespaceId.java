@@ -13,15 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
-package co.cask.common.authorization.proxy;
+package co.cask.common.authorization;
 
 /**
- * Test for {@link CGLibAuthorizationProxyFactory}.
+ *
  */
-public class CGLibAuthorizationProxyFactoryTest extends AuthorizationProxyFactoryTest {
-  @Override
-  protected Class<? extends AuthorizationProxyFactory> getProxyFactoryClass() {
-    return CGLibAuthorizationProxyFactory.class;
+public class NamespaceId extends ObjectId {
+
+  public NamespaceId(String id) {
+    super("namespace", id);
   }
+
 }
