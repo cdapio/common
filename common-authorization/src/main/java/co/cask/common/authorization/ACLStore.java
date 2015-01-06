@@ -81,6 +81,10 @@ public interface ACLStore {
       this(objectId, subjectId, null);
     }
 
+    public Query(ACLEntry entry) {
+      this(entry.getObject(), entry.getSubject(), entry.getPermission());
+    }
+
     public ObjectId getObjectId() {
       return objectId;
     }

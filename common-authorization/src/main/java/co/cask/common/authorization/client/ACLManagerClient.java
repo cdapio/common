@@ -189,34 +189,6 @@ public class ACLManagerClient {
     return response.getResponseCode() == HttpURLConnection.HTTP_OK;
   }
 
-  /**
-   * Deletes an {@link ACLEntry} for an object, subject, and a permission. This disallows the subject to
-   * access the object for the specified permission.
-   *
-   * <p>
-   * For example, if object is "secretFile", subject is "Bob", and permission is "WRITE", then "Bob"
-   * would be no longer allowed to write to the "secretFile", assuming that what is doing the writing is protecting
-   * the "secretFile" via a call to one of the {@code verifyAuthorized()} or {@code isAuthorized()} calls.
-   * </p>
-   *
-   * @param entry the {@link ACLEntry} to delete
-   * @return true if the {@link ACLEntry} previously existed
-   * @throws IOException if an error occurred when contacting the authorization service
-   */
-  public boolean deleteACL(NamespaceId namespaceId, ACLEntry entry) throws IOException {
-    HttpRequest request = HttpRequest.delete(resolveURL("/v1/acls/namespace/" + namespaceId.getId()))
-      .withBody(GSON.toJson(entry)).build();
-    HttpResponse response = HttpRequests.execute(request);
-
-    if (response.getResponseCode() != HttpURLConnection.HTTP_OK &&
-      response.getResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
-      throw new IOException("Unexpected response: " + response.getResponseCode() +
-                              ": " + response.getResponseMessage());
-    }
-
-    return response.getResponseCode() == HttpURLConnection.HTTP_OK;
-  }
-
   protected URL resolveURL(String path) throws MalformedURLException {
     return baseURISupplier.get().resolve(path).toURL();
   }

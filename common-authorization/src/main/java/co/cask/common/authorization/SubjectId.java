@@ -43,16 +43,16 @@ public class SubjectId {
   }
 
   @Override
-  public int hashCode() {
-    return Objects.hashCode(id);
+  public final int hashCode() {
+    return Objects.hashCode(type, id);
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public final boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
-    if (obj == null || getClass() != obj.getClass()) {
+    if (obj == null || !(obj instanceof SubjectId)) {
       return false;
     }
     final SubjectId other = (SubjectId) obj;

@@ -69,17 +69,17 @@ public class ObjectId {
   }
 
   @Override
-  public int hashCode() {
+  public final int hashCode() {
     return Objects.hashCode(parent, type, id);
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public final boolean equals(Object obj) {
     if (this == obj) {
       return true;
     }
 
-    if (obj == null || getClass() != obj.getClass()) {
+    if (obj == null || !(obj instanceof ObjectId)) {
       return false;
     }
 

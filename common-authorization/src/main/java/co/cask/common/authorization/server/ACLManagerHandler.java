@@ -29,7 +29,6 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 
 import java.util.Set;
-import javax.annotation.Nullable;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -55,8 +54,8 @@ public class ACLManagerHandler extends AbstractHttpHandler {
   @GET
   @Path("/acls/global")
   public void getGlobalACLs(HttpRequest request, HttpResponder responder,
-                            @Nullable @QueryParam("subject") String subjectString,
-                            @Nullable @QueryParam("permission") String permission) {
+                            @QueryParam("subject") String subjectString,
+                            @QueryParam("permission") String permission) {
 
     // TODO: validate input
     SubjectId subject = string2SubjectId(subjectString);
@@ -71,9 +70,9 @@ public class ACLManagerHandler extends AbstractHttpHandler {
   @Path("/acls/namespace/{namespace-id}")
   public void getACLs(HttpRequest request, HttpResponder responder,
                       @PathParam("namespace-id") String namespaceId,
-                      @Nullable @QueryParam("object") String objectString,
-                      @Nullable @QueryParam("subject") String subjectString,
-                      @Nullable @QueryParam("permission") String permission) {
+                      @QueryParam("object") String objectString,
+                      @QueryParam("subject") String subjectString,
+                      @QueryParam("permission") String permission) {
 
     // TODO: validate input
     SubjectId subject = string2SubjectId(subjectString);
@@ -88,8 +87,8 @@ public class ACLManagerHandler extends AbstractHttpHandler {
   @DELETE
   @Path("/acls/global")
   public void deleteGlobalACLs(HttpRequest request, HttpResponder responder,
-                               @Nullable @QueryParam("subject") String subjectString,
-                               @Nullable @QueryParam("permission") String permission) {
+                               @QueryParam("subject") String subjectString,
+                               @QueryParam("permission") String permission) {
 
     // TODO: validate input
     SubjectId subject = string2SubjectId(subjectString);
@@ -103,9 +102,9 @@ public class ACLManagerHandler extends AbstractHttpHandler {
   @Path("/acls/namespace/{namespace-id}")
   public void deleteACLs(HttpRequest request, HttpResponder responder,
                          @PathParam("namespace-id") String namespaceId,
-                         @Nullable @QueryParam("object") String objectString,
-                         @Nullable @QueryParam("subject") String subjectString,
-                         @Nullable @QueryParam("permission") String permission) {
+                         @QueryParam("object") String objectString,
+                         @QueryParam("subject") String subjectString,
+                         @QueryParam("permission") String permission) {
 
     // TODO: validate input
     SubjectId subject = string2SubjectId(subjectString);
