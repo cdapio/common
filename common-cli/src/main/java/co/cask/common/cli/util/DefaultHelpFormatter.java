@@ -1,5 +1,5 @@
 /*
- * Copyright © 2012-2014 Cask Data, Inc.
+ * Copyright © 2012-2015 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -30,6 +30,8 @@ import java.util.List;
  */
 public class DefaultHelpFormatter implements HelpFormatter {
 
+  private static final int MAX_LINE_LEN = 120;
+
   public void print(Iterable<Command> commands, PrintStream printStream) {
     List<Command> sortedCommands = new LinkedList<Command>();
 
@@ -54,7 +56,13 @@ public class DefaultHelpFormatter implements HelpFormatter {
         printStream.println(String.format("%s", previousCommandName));
       }
 
-      printStream.println(String.format("  * %s: %s", command.getPattern(), command.getDescription()));
+      String pattern = command.getPattern();
+      String description = command.getDescription();
+      if (pattern.length() + description.length() > MAX_LINE_LEN) {
+        printStream.println(String.format("  * %s:\n      %s", pattern, description));
+      } else {
+        printStream.println(String.format("  * %s: %s", pattern, description));
+      }
     }
   }
 }
