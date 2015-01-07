@@ -19,10 +19,10 @@ the License.
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>co.cask.common</groupId>
-  <artifactId>common-parent</artifactId>
+  <artifactId>common</artifactId>
   <version>0.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>Cask Common Libraries Parent</name>
+  <name>Cask Common Libraries</name>
   <description>Common utilities</description>
   <url>https://github.com/caskdata/common</url>
  
@@ -70,7 +70,7 @@ the License.
     <module>common-http</module>
     <module>common-io</module>
     <module>common-config</module>
-    <module>common</module>
+    <module>common-core</module>
   </modules>
 
   <properties>
