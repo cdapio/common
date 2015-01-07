@@ -71,18 +71,25 @@ the License.
     <module>common-io</module>
     <module>common-config</module>
     <module>common-core</module>
+    <module>common-security</module>
+    <module>common-security-service</module>
   </modules>
 
   <properties>
     <findbugs.jsr305.version>2.0.1</findbugs.jsr305.version>
+    <geronimo.version>2.0.0</geronimo.version>
     <guava.version>13.0.1</guava.version>
     <guice.version>3.0</guice.version>
     <gson.version>2.2.4</gson.version>
     <netty.http.version>0.4.0</netty.http.version>
     <jackson.version>1.8.8</jackson.version>
+    <jetty8.version>8.1.15.v20140411</jetty8.version>
     <jline.version>2.12</jline.version>
     <junit.version>4.11</junit.version>
+    <logback.version>1.0.9</logback.version>
+    <servlet.api.version>3.0.1</servlet.api.version>
     <slf4j.version>1.7.5</slf4j.version>
+    <twill.version>0.4.0-incubating</twill.version>
   </properties>
 
   <dependencyManagement>
@@ -131,6 +138,56 @@ the License.
         <groupId>com.google.inject</groupId>
         <artifactId>guice</artifactId>
         <version>${guice.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.twill</groupId>
+        <artifactId>twill-zookeeper</artifactId>
+        <version>${twill.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>${servlet.api.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${jetty8.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-security</artifactId>
+        <version>${jetty8.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-util</artifactId>
+        <version>${jetty8.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-jaspi</artifactId>
+        <version>${jetty8.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-plus</artifactId>
+        <version>${jetty8.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.geronimo.components</groupId>
+        <artifactId>geronimo-jaspi</artifactId>
+        <version>${geronimo.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
