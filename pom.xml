@@ -72,7 +72,6 @@ the License.
     <module>common-config</module>
     <module>common-core</module>
     <module>common-security</module>
-    <module>common-security-service</module>
   </modules>
 
   <properties>
