@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Copyright © 2014 Cask Data, Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License"); you may not
+  use this file except in compliance with the License. You may obtain a copy of
+  the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+  License for the specific language governing permissions and limitations under
+  the License.
+  -->
+<configuration>
+    <property>
+        <name>security.token.digest.algorithm</name>
+        <value>HmacSHA256</value>
+    </property>
+
+    <property>
+        <name>security.token.digest.keylength</name>
+        <value>128</value>
+    </property>
+
+    <property>
+      <name>security.auth.server.bind.address</name>
+      <value>127.0.0.1</value>
+    </property>
+
+    <property>
+        <name>security.auth.server.bind.port</name>
+        <value>10009</value>
+    </property>
+
+    <property>
+        <name>security.server.maxthreads</name>
+        <value>100</value>
+    </property>
+
+    <property>
+        <name>security.server.token.expiration.ms</name>
+        <value>86400000</value>
+        <description>AccessToken expiration time in milliseconds (defaults to 24 hours)</description>
+    </property>
+
+    <property>
+        <name>security.data.keyfile.path</name>
+        <value></value>
+    </property>
+
+    <!--
+        External Authentication login module Settings
+    -->
+    <property>
+        <name>security.authentication.handlerClassName</name>
+        <value></value>
+    </property>
+
+    <property>
+        <name>security.authentication.loginmodule.className</name>
+        <value></value>
+    </property>
+
+    <property>
+      <name>security.authentication.basic.realmfile</name>
+      <value></value>
+    </property>
+
+    <property>
+        <name>security.token.digest.key.expiration.ms</name>
+        <value>3600000</value>
+        <description>Time duration (in milliseconds) after which an active secret key used
+        for signing tokens should be retired</description>
+    </property>
+
+    <property>
+        <name>security.server.extended.token.expiration.ms</name>
+        <value>604800000</value>
+        <description>Admin Tools AccessToken expiration time in milliseconds (defaults to 
+        1 week) (internal)</description>
+    </property>
+
+    <property>
+        <name>security.token.distributed.parent.znode</name>
+        <value>/${root.namespace}/security/auth</value>
+        <description>Parent node in ZooKeeper used for secret key distribution in distributed mode</description>
+    </property>
+
+  <!--
+      Security-enabled Flag
+  -->
+  <property>
+      <name>security.enabled</name>
+      <value>false</value>
+      <description>If this is set to true, security layer will be up and active</description>
+  </property>
+
+  <property>
+      <name>security.authorization.enabled</name>
+      <value>false</value>
+      <description>If this is set to true, authorization checks will be made</description>
+  </property>
+
+  <property>
+    <name>kerberos.auth.enabled</name>
+    <value>${security.enabled}</value>
+    <description>If true, Kerberos authentication will be enabled</description>
+  </property>
+
+  <property>
+      <name>security.realm</name>
+      <value>cdap</value>
+      <description>Security realm used for authentication</description>
+  </property>
+
+  <!-- Configuration for enabling SSL -->
+
+  <property>
+    <name>ssl.enabled</name>
+    <value>false</value>
+  </property>
+
+  <!-- Security configuration for the external authentication server -->
+
+  <property>
+    <name>security.auth.server.ssl.bind.port</name>
+    <value>10010</value>
+  </property>
+
+</configuration>

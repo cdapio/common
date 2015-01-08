@@ -24,26 +24,30 @@ the License.
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>common-config</artifactId>
-  <name>Cask Common Libraries: Config</name>
+  <artifactId>common-lang</artifactId>
+  <name>Cask Common Libraries: Lang</name>
 
   <dependencies>
     <dependency>
-      <groupId>co.cask.common</groupId>
-      <artifactId>common-core</artifactId>
-      <version>${project.version}</version>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>jsr305</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.jackson</groupId>
-      <artifactId>jackson-core-asl</artifactId>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-all</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
