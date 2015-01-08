@@ -14,32 +14,15 @@
  * the License.
  */
 
-package co.cask.common.security.auth;
-
-import co.cask.common.security.config.SecurityConfiguration;
-
-import java.io.IOException;
+package co.cask.common.security.authentication;
 
 /**
- * Maintains secret keys in memory and uses them to sign and validate authentication tokens.
+ * Exception thrown if an asserted message digest does not match the recomputed value, using the same secret key.
+ * This can occur if a message digest has been forged (without knowledge of the correct secret key), or if the
+ * message contents have been tampered with.
  */
-public class InMemoryKeyManager extends MapBackedKeyManager {
-
-  /**
-   * Create an InMemoryKeyManager that stores keys in memory only.
-   * @param conf
-   */
-  public InMemoryKeyManager(SecurityConfiguration conf) {
-    super(conf);
-  }
-
-  @Override
-  public void doInit() throws IOException {
-    generateKey();
-  }
-
-  @Override
-  public void shutDown() {
-    // nothing to do
+public class InvalidDigestException extends Exception {
+  public InvalidDigestException(String message) {
+    super(message);
   }
 }

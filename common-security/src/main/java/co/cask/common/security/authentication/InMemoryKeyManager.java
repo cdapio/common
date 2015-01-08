@@ -14,27 +14,32 @@
  * the License.
  */
 
-package co.cask.common.security.auth;
+package co.cask.common.security.authentication;
+
+import co.cask.common.security.config.SecurityConfiguration;
+
+import java.io.IOException;
 
 /**
- * This exception indicates a failure to validate an issued {@link AccessToken}, for example due to token expiration
- * or an invalid token digest.
+ * Maintains secret keys in memory and uses them to sign and validate authentication tokens.
  */
-public class InvalidTokenException extends Exception {
+public class InMemoryKeyManager extends MapBackedKeyManager {
 
-  private final TokenState reason;
-
-  public InvalidTokenException(TokenState reason, String message) {
-    super(message);
-    this.reason = reason;
+  /**
+   * Create an InMemoryKeyManager that stores keys in memory only.
+   * @param conf
+   */
+  public InMemoryKeyManager(SecurityConfiguration conf) {
+    super(conf);
   }
 
-  public InvalidTokenException(TokenState reason, String message, Throwable cause) {
-    super(message, cause);
-    this.reason = reason;
+  @Override
+  public void doInit() throws IOException {
+    generateKey();
   }
 
-  public TokenState getReason() {
-    return reason;
+  @Override
+  public void shutDown() {
+    // nothing to do
   }
 }

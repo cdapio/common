@@ -18,9 +18,9 @@ package co.cask.common.security.server;
 
 import co.cask.common.io.Codec;
 import co.cask.common.security.Constants;
-import co.cask.common.security.auth.AccessToken;
-import co.cask.common.security.auth.AccessTokenIdentifier;
-import co.cask.common.security.auth.TokenManager;
+import co.cask.common.security.authentication.AccessToken;
+import co.cask.common.security.authentication.AccessTokenIdentifier;
+import co.cask.common.security.authentication.TokenManager;
 import co.cask.common.security.config.SecurityConfiguration;
 import com.google.common.base.Charsets;
 import com.google.gson.JsonObject;

@@ -14,7 +14,7 @@
  * the License.
  */
 
-package co.cask.common.security.auth;
+package co.cask.common.security.authentication;
 
 /**
  * Different states attained after validating the token

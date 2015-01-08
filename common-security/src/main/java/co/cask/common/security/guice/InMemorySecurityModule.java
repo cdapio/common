@@ -16,8 +16,8 @@
 
 package co.cask.common.security.guice;
 
-import co.cask.common.security.auth.InMemoryKeyManager;
-import co.cask.common.security.auth.KeyManager;
+import co.cask.common.security.authentication.InMemoryKeyManager;
+import co.cask.common.security.authentication.KeyManager;
 import co.cask.common.security.config.SecurityConfiguration;
 import com.google.inject.Binder;
 import com.google.inject.Inject;

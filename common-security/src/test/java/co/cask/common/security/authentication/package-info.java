@@ -17,4 +17,4 @@
 /**
  *
  */
-package co.cask.common.security.auth;
+package co.cask.common.security.authentication;

@@ -14,25 +14,20 @@
  * the License.
  */
 
-package co.cask.common.security.auth;
+package co.cask.common.security.authentication;
+
+import com.google.common.util.concurrent.Service;
 
 /**
- * Represents a message signed by a secret key.
- * @param <T> the type of the message object which has been signed.
+ * Interface TokenValidator to validate the access token.
  */
-public interface Signed<T> {
+public interface TokenValidator extends Service {
   /**
-   * Returns the message object which was signed.
+   * Validates the access token and returns the {@link co.cask.common.security.authentication.TokenState}
+   * describing the cause to be in this state
+   *
+   * @param token The token to be validated.
+   * @return The state after validation.
    */
-  T getMessage();
-
-  /**
-   * Returns the identifier for the secret key used to compute the message digest.
-   */
-  int getKeyId();
-
-  /**
-   * Returns the digest generated against the message.
-   */
-  byte[] getDigestBytes();
+  TokenState validate(String token);
 }

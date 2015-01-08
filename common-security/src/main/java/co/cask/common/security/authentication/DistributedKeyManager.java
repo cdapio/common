@@ -14,7 +14,7 @@
  * the License.
  */
 
-package co.cask.common.security.auth;
+package co.cask.common.security.authentication;
 
 import co.cask.common.io.Codec;
 import co.cask.common.security.Constants;

@@ -18,9 +18,9 @@ package co.cask.common.security.guice;
 
 import co.cask.common.io.Codec;
 import co.cask.common.security.Constants;
-import co.cask.common.security.auth.FileBasedKeyManager;
-import co.cask.common.security.auth.KeyIdentifier;
-import co.cask.common.security.auth.KeyManager;
+import co.cask.common.security.authentication.FileBasedKeyManager;
+import co.cask.common.security.authentication.KeyIdentifier;
+import co.cask.common.security.authentication.KeyManager;
 import co.cask.common.security.config.SecurityConfiguration;
 import com.google.inject.Binder;
 import com.google.inject.Inject;

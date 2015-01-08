@@ -14,7 +14,7 @@
  * the License.
  */
 
-package co.cask.common.security.auth;
+package co.cask.common.security.authentication;
 
 import co.cask.common.Bytes;
 import co.cask.common.ImmutablePair;
