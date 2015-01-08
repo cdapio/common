@@ -80,6 +80,7 @@ the License.
     <module>common-cli</module>
     <module>common-http</module>
     <module>common-io</module>
+    <module>common-authorization</module>
     <module>common-config</module>
     <module>common-core</module>
     <module>common-security</module>
@@ -93,7 +94,7 @@ the License.
     <guava.version>13.0.1</guava.version>
     <guice.version>3.0</guice.version>
     <gson.version>2.2.4</gson.version>
-    <netty.http.version>0.4.0</netty.http.version>
+    <netty.http.version>0.9.0</netty.http.version>
     <jackson.version>1.8.8</jackson.version>
     <jetty8.version>8.1.15.v20140411</jetty8.version>
     <jline.version>2.12</jline.version>
@@ -147,6 +148,16 @@ the License.
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.twill</groupId>
+        <artifactId>twill-discovery-api</artifactId>
+        <version>${twill.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.twill</groupId>
+        <artifactId>twill-discovery-core</artifactId>
+        <version>${twill.version}</version>
       </dependency>
       <dependency>
         <groupId>jline</groupId>
