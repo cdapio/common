@@ -15,6 +15,7 @@
  */
 package co.cask.common.security.authorization.server;
 
+import co.cask.common.security.authorization.SecurityNettyHttpServiceBuilder;
 import co.cask.http.NettyHttpService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.AbstractIdleService;
@@ -41,7 +42,7 @@ public class ACLManagerService extends AbstractIdleService {
   @Inject
   public ACLManagerService(Injector injector, DiscoveryService discoveryService) {
     this.discoveryService = discoveryService;
-    this.httpService = NettyHttpService.builder()
+    this.httpService = new SecurityNettyHttpServiceBuilder()
       .addHttpHandlers(ImmutableList.of(injector.getInstance(ACLManagerHandler.class)))
       .build();
   }
