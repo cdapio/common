@@ -65,8 +65,9 @@ public class CLI<T extends Command> {
 
   private CLIExceptionHandler<Exception> exceptionHandler = new CLIExceptionHandler<Exception>() {
     @Override
-    public void handleException(PrintStream output, Exception exception) {
+    public boolean handleException(PrintStream output, Exception exception, int timesRetried) {
       output.println("Error: " + exception.getMessage());
+      return false;
     }
   };
 
@@ -128,11 +129,17 @@ public class CLI<T extends Command> {
    */
   public void execute(String input, PrintStream output) throws InvalidCommandException {
     CommandMatch match = commands.findMatch(input);
-    try {
-      match.getCommand().execute(match.getArguments(), output);
-    } catch (Exception e) {
-      exceptionHandler.handleException(output, e);
-    }
+    boolean retry = false;
+    int timesRetried = 0;
+
+    do {
+      try {
+        match.getCommand().execute(match.getArguments(), output);
+      } catch (Exception e) {
+        retry = exceptionHandler.handleException(output, e, timesRetried);
+        timesRetried++;
+      }
+    } while (retry);
   }
 
   /**
@@ -164,11 +171,19 @@ public class CLI<T extends Command> {
 
       if (line.length() > 0) {
         String command = line.trim();
-        try {
-          execute(command, output);
-        } catch (Exception e) {
-          exceptionHandler.handleException(output, e);
-        }
+
+        boolean retry = false;
+        int timesRetried = 0;
+
+        do {
+          try {
+            execute(command, output);
+          } catch (Exception e) {
+            retry = exceptionHandler.handleException(output, e, timesRetried);
+            timesRetried++;
+          }
+        } while (retry);
+
         output.println();
       }
     }
