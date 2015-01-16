@@ -127,8 +127,8 @@ public class CLI<T extends Command> {
    * @param output the {@link PrintStream} to write messages to
    */
   public void execute(String input, PrintStream output) throws InvalidCommandException {
-    CommandMatch match = commands.findMatch(input);
     try {
+      CommandMatch match = commands.findMatch(input);
       match.getCommand().execute(match.getArguments(), output);
     } catch (Exception e) {
       exceptionHandler.handleException(output, e);
