@@ -18,7 +18,6 @@ package co.cask.common.cli;
 
 import co.cask.common.cli.completers.DefaultStringsCompleter;
 import co.cask.common.cli.exception.CLIExceptionHandler;
-import co.cask.common.cli.exception.InvalidCommandException;
 import co.cask.common.cli.internal.TreeNode;
 import co.cask.common.cli.supplier.CompleterSupplier;
 import co.cask.common.cli.supplier.DefaultCompleterSupplier;
@@ -126,9 +125,9 @@ public class CLI<T extends Command> {
    * @param input the input
    * @param output the {@link PrintStream} to write messages to
    */
-  public void execute(String input, PrintStream output) throws InvalidCommandException {
-    CommandMatch match = commands.findMatch(input);
+  public void execute(String input, PrintStream output) {
     try {
+      CommandMatch match = commands.findMatch(input);
       match.getCommand().execute(match.getArguments(), output);
     } catch (Exception e) {
       exceptionHandler.handleException(output, e);
@@ -164,11 +163,7 @@ public class CLI<T extends Command> {
 
       if (line.length() > 0) {
         String command = line.trim();
-        try {
-          execute(command, output);
-        } catch (Exception e) {
-          exceptionHandler.handleException(output, e);
-        }
+        execute(command, output);
         output.println();
       }
     }
