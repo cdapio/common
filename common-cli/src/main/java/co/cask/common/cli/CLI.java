@@ -163,11 +163,7 @@ public class CLI<T extends Command> {
 
       if (line.length() > 0) {
         String command = line.trim();
-        try {
-          execute(command, output);
-        } catch (Exception e) {
-          exceptionHandler.handleException(output, e);
-        }
+        execute(command, output);
         output.println();
       }
     }
