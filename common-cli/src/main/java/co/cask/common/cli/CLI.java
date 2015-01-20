@@ -64,8 +64,9 @@ public class CLI<T extends Command> {
 
   private CLIExceptionHandler<Exception> exceptionHandler = new CLIExceptionHandler<Exception>() {
     @Override
-    public void handleException(PrintStream output, Exception exception) {
+    public boolean handleException(PrintStream output, Exception exception, int timesRetried) {
       output.println("Error: " + exception.getMessage());
+      return false;
     }
   };
 
@@ -126,12 +127,18 @@ public class CLI<T extends Command> {
    * @param output the {@link PrintStream} to write messages to
    */
   public void execute(String input, PrintStream output) {
-    try {
-      CommandMatch match = commands.findMatch(input);
-      match.getCommand().execute(match.getArguments(), output);
-    } catch (Exception e) {
-      exceptionHandler.handleException(output, e);
-    }
+    boolean retry = false;
+    int timesRetried = 0;
+
+    do {
+      try {
+        CommandMatch match = commands.findMatch(input);
+        match.getCommand().execute(match.getArguments(), output);
+      } catch (Exception e) {
+        retry = exceptionHandler.handleException(output, e, timesRetried);
+        timesRetried++;
+      }
+    } while (retry);
   }
 
   /**

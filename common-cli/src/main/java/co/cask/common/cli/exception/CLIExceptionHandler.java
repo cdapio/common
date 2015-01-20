@@ -27,8 +27,10 @@ public interface CLIExceptionHandler<ExceptionType> {
   /**
    * Called by {@link co.cask.common.cli.CLI} when an exception is thrown while processing user input.
    *
+   * @return true if the CLI command should be retried
    * @param output the {@link PrintStream} that the {@link co.cask.common.cli.CLI} is configured to output to
    * @param exception the exception that occurred
+   * @param timesRetried number of times that the CLI command has already been retried
    */
-  void handleException(PrintStream output, ExceptionType exception);
+  boolean handleException(PrintStream output, ExceptionType exception, int timesRetried);
 }
