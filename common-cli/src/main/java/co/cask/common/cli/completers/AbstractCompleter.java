@@ -45,7 +45,11 @@ public abstract class AbstractCompleter implements Completer {
     }
 
     if (candidatesOut.size() == 1) {
-      candidatesOut.set(0, candidatesOut.get(0) + " ");
+      if (buffer != null && buffer.equals(candidatesOut.get(0))) {
+        candidatesOut.set(0, candidatesOut.get(0) + " ");
+      } else {
+        candidatesOut.set(0, candidatesOut.get(0));
+      }
     }
 
     return candidatesOut.isEmpty() ? -1 : 0;

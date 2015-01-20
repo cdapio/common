@@ -59,7 +59,11 @@ public class PrefixCompleter implements Completer {
         }
 
         if (candidates.size() == 1) {
-          candidates.set(0, candidates.get(0) + " ");
+          if (buffer.equals(realPrefix + candidates.get(0))) {
+            candidates.set(0, candidates.get(0) + " ");
+          } else {
+            candidates.set(0, candidates.get(0));
+          }
         }
 
         return candidates.isEmpty() ? -1 : realPrefix.length() + result;

@@ -38,7 +38,7 @@ public class StringsCompleterTest extends CompleterTestBase {
     };
 
     testCompleter(completer, "a", 0, ImmutableList.<CharSequence>of("asdf", "asdd"));
-    testCompleter(completer, "b", 0, ImmutableList.<CharSequence>of("bdf "));
+    testCompleter(completer, "b", 0, ImmutableList.<CharSequence>of("bdf"));
     testCompleter(completer, "c", 0, ImmutableList.<CharSequence>of());
   }
 

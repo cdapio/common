@@ -30,7 +30,7 @@ public class PrefixCompleterTest extends CompleterTestBase {
     PrefixCompleter completer = new PrefixCompleter("asd lkj", childCompleter);
 
     testCompleter(completer, "asd lkj a", 0, ImmutableList.<CharSequence>of("asdf", "asdd"));
-    testCompleter(completer, "asd lkj b", 0, ImmutableList.<CharSequence>of("bdf "));
+    testCompleter(completer, "asd lkj b", 0, ImmutableList.<CharSequence>of("bdf"));
     testCompleter(completer, "asd lkj c", 0, ImmutableList.<CharSequence>of());
 
     testCompleter(completer, "asd a", 0, ImmutableList.<CharSequence>of());
@@ -49,7 +49,7 @@ public class PrefixCompleterTest extends CompleterTestBase {
 
     testCompleter(completer, "some prefix 'some json \"in quotes\" and text ' with end \"argument number two\" t", 0,
                   ImmutableList.<CharSequence>of("two", "three"));
-    testCompleter(completer, "some prefix \"arg 1\" with end arg-2 o", 0, ImmutableList.<CharSequence>of("one "));
+    testCompleter(completer, "some prefix \"arg 1\" with end arg-2 o", 0, ImmutableList.<CharSequence>of("one"));
     testCompleter(completer, "some prefix \"arg 1\" with end arg-2 a", 0, ImmutableList.<CharSequence>of());
 
     testCompleter(completer, "some prefix 'some json \"in quotes\" and text ' with t", 0,
