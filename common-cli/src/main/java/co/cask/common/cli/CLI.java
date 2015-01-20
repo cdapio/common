@@ -170,19 +170,7 @@ public class CLI<T extends Command> {
 
       if (line.length() > 0) {
         String command = line.trim();
-
-        boolean retry = false;
-        int timesRetried = 0;
-
-        do {
-          try {
-            execute(command, output);
-          } catch (Exception e) {
-            retry = exceptionHandler.handleException(output, e, timesRetried);
-            timesRetried++;
-          }
-        } while (retry);
-
+        execute(command, output);
         output.println();
       }
     }
