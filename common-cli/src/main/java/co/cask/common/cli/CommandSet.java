@@ -91,7 +91,11 @@ public class CommandSet<T extends Command> implements Iterable<T> {
   }
 
   public Iterable<T> getCommands() {
-    return Iterables.concat(commands, Iterables.concat(commandSets));
+    return commands;
+  }
+
+  public Iterable<CommandSet<T>> getCommandSets() {
+    return commandSets;
   }
 
   /**
