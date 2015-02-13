@@ -41,13 +41,16 @@ public class HttpRequest {
   private final URL url;
   private final Multimap<String, String> headers;
   private final InputSupplier<? extends InputStream> body;
+  private final Long bodyLength;
 
   public HttpRequest(HttpMethod method, URL url, @Nullable Multimap<String, String> headers,
-                     @Nullable InputSupplier<? extends InputStream> body) {
+                     @Nullable InputSupplier<? extends InputStream> body,
+                     @Nullable Long bodyLength) {
     this.method = method;
     this.url = url;
     this.headers = headers;
     this.body = body;
+    this.bodyLength = bodyLength;
   }
 
   public static Builder get(URL url) {
@@ -92,6 +95,15 @@ public class HttpRequest {
     return body;
   }
 
+  @Nullable
+  public Long getBodyLength() {
+    return bodyLength;
+  }
+
+  public boolean hasBodyLength() {
+    return bodyLength != null;
+  }
+
   /**
    * Builder for {@link HttpRequest}.
    */
@@ -100,6 +112,7 @@ public class HttpRequest {
     private final URL url;
     private final Multimap<String, String> headers = LinkedListMultimap.create();
     private InputSupplier<? extends InputStream> body;
+    private Long bodyLength;
 
     Builder(HttpMethod method, URL url) {
       this.method = method;
@@ -129,36 +142,41 @@ public class HttpRequest {
 
     public Builder withBody(InputSupplier<? extends InputStream> body) {
       this.body = body;
+      this.bodyLength = null;
       return this;
     }
 
     public Builder withBody(File body) {
       this.body = Files.newInputStreamSupplier(body);
+      this.bodyLength = body.length();
       return this;
     }
 
     public Builder withBody(String body) {
-      this.body = ByteStreams.newInputStreamSupplier(body.getBytes(Charsets.UTF_8));
-      return this;
+      return withBody(body, Charsets.UTF_8);
     }
 
     public Builder withBody(String body, Charset charset) {
-      this.body = ByteStreams.newInputStreamSupplier(body.getBytes(charset));
+      byte[] bytes = body.getBytes(charset);
+      this.body = ByteStreams.newInputStreamSupplier(bytes);
+      this.bodyLength = (long) bytes.length;
       return this;
     }
 
     public Builder withBody(final ByteBuffer body) {
+      final ByteBuffer duplicate = body.duplicate();
       this.body = new InputSupplier<InputStream>() {
         @Override
         public InputStream getInput() throws IOException {
-          return new ByteBufferInputStream(body.duplicate());
+          return new ByteBufferInputStream(duplicate);
         }
       };
+      this.bodyLength = (long) (duplicate.remaining());
       return this;
     }
 
     public HttpRequest build() {
-      return new HttpRequest(method, url, headers, body);
+      return new HttpRequest(method, url, headers, body, bodyLength);
     }
   }
 }
