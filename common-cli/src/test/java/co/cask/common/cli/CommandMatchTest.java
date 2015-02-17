@@ -89,6 +89,18 @@ public class CommandMatchTest {
     Assert.assertEquals(SIZE, args.getInt("size"));
   }
 
+  @Test
+  public void getArgumentsNoOptionalTestWithSpaces() throws NoSuchFieldException, IllegalAccessException {
+    String testInput = String.format("      create cluster  '%s' with  template     '%s' of  size '%s'  ",
+                                     NAME, TEMPLATE, SIZE);
+    CommandMatch commandMatch = new CommandMatch(TEST_COMMAND, testInput);
+    Arguments args = commandMatch.getArguments();
+    Assert.assertEquals(3, args.size());
+    Assert.assertEquals(NAME, args.get("name"));
+    Assert.assertEquals(TEMPLATE, args.get("template"));
+    Assert.assertEquals(SIZE, args.getInt("size"));
+  }
+
   @Test(expected = IllegalArgumentException.class)
   public void getArgumentsWrongMandatoryInputTest() throws NoSuchFieldException, IllegalAccessException {
     String testInput = String.format("create cluster '%s' with template of size '%s'",
