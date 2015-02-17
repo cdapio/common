@@ -55,10 +55,12 @@ public class Parser {
       switch (state) {
         case EMPTY:
           if (ch == SEPARATOR) {
-            splitInput.add(builder.toString());
+            if (builder.length() > 0) {
+              splitInput.add(builder.toString());
+            }
             builder.setLength(0);
             // skip consecutive SEPARATORs
-            while (chars[i+1] == SEPARATOR && i+1 < chars.length) {
+            while (i + 1 < chars.length && chars[i + 1] == SEPARATOR) {
               i++;
             }
             break;

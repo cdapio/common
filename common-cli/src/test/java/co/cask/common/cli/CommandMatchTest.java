@@ -91,7 +91,7 @@ public class CommandMatchTest {
 
   @Test
   public void getArgumentsNoOptionalTestWithSpaces() throws NoSuchFieldException, IllegalAccessException {
-    String testInput = String.format("create cluster  '%s' with  template     '%s' of  size '%s'",
+    String testInput = String.format("      create cluster  '%s' with  template     '%s' of  size '%s'  ",
                                      NAME, TEMPLATE, SIZE);
     CommandMatch commandMatch = new CommandMatch(TEST_COMMAND, testInput);
     Arguments args = commandMatch.getArguments();
