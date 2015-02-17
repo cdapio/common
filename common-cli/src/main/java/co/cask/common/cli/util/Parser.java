@@ -49,12 +49,18 @@ public class Parser {
     List<String> splitInput = new ArrayList<String>();
     StringBuilder builder = new StringBuilder();
     State state = State.EMPTY;
-    for (char ch : input.toCharArray()) {
+    char[] chars = input.toCharArray();
+    for (int i = 0; i < chars.length; i++) {
+      char ch = chars[i];
       switch (state) {
         case EMPTY:
           if (ch == SEPARATOR) {
             splitInput.add(builder.toString());
             builder.setLength(0);
+            // skip consecutive SEPARATORs
+            while (chars[i+1] == SEPARATOR && i+1 < chars.length) {
+              i++;
+            }
             break;
           }
           if (ch == ARG_WRAPPER) {
