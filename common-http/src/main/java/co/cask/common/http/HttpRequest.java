@@ -100,10 +100,6 @@ public class HttpRequest {
     return bodyLength;
   }
 
-  public boolean hasBodyLength() {
-    return bodyLength != null;
-  }
-
   /**
    * Builder for {@link HttpRequest}.
    */

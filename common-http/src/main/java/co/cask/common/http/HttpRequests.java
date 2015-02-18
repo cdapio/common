@@ -79,8 +79,10 @@ public final class HttpRequests {
     InputSupplier<? extends InputStream> bodySrc = request.getBody();
     if (bodySrc != null) {
       conn.setDoOutput(true);
-      if (request.hasBodyLength()) {
-        conn.setFixedLengthStreamingMode(request.getBodyLength());
+      Long bodyLength = request.getBodyLength();
+      if (bodyLength != null) {
+        // use intValue to support 1.6
+        conn.setFixedLengthStreamingMode(bodyLength.intValue());
       } else {
         conn.setChunkedStreamingMode(0);
       }
