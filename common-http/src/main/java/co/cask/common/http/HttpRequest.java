@@ -74,7 +74,7 @@ public class HttpRequest {
   }
 
   public static Builder builder(HttpRequest request) {
-    return new Builder(request.method, request.url).addHeaders(request.getHeaders()).withBody(request.getBody());
+    return new Builder(request);
   }
 
   public HttpMethod getMethod() {
@@ -106,13 +106,22 @@ public class HttpRequest {
   public static final class Builder {
     private final HttpMethod method;
     private final URL url;
-    private final Multimap<String, String> headers = LinkedListMultimap.create();
+    private final Multimap<String, String> headers;
     private InputSupplier<? extends InputStream> body;
     private Long bodyLength;
 
     Builder(HttpMethod method, URL url) {
       this.method = method;
       this.url = url;
+      this.headers = LinkedListMultimap.create();
+    }
+
+    public Builder(HttpRequest request) {
+      this.method = request.method;
+      this.url = request.url;
+      this.headers = request.headers;
+      this.body = request.body;
+      this.bodyLength = request.bodyLength;
     }
 
     public Builder addHeader(String key, String value) {
