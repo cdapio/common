@@ -70,7 +70,7 @@ public final class HttpRequests {
     conn.setConnectTimeout(requestConfig.getConnectTimeout());
 
     Multimap<String, String> headers = request.getHeaders();
-    if (headers != null) {
+    if (headers != null && !headers.isEmpty()) {
       for (Map.Entry<String, String> header : headers.entries()) {
         conn.setRequestProperty(header.getKey(), header.getValue());
       }
@@ -82,7 +82,9 @@ public final class HttpRequests {
       Long bodyLength = request.getBodyLength();
       if (bodyLength != null) {
         // use intValue to support 1.6
-        conn.setFixedLengthStreamingMode(bodyLength.intValue());
+        if (bodyLength > requestConfig.getFixedLengthStreamingThreshold()) {
+          conn.setFixedLengthStreamingMode(bodyLength.intValue());
+        }
       } else {
         conn.setChunkedStreamingMode(0);
       }
