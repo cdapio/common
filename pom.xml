@@ -20,7 +20,7 @@ the License.
 
   <groupId>co.cask.common</groupId>
   <artifactId>common</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.1</version>
   <packaging>pom</packaging>
   <name>Cask Common Libraries</name>
   <description>Common utilities</description>
