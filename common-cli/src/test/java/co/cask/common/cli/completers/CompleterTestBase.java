@@ -20,8 +20,6 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import jline.console.completer.Completer;
 import org.junit.Assert;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
