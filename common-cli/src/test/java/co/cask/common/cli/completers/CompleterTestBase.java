@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import jline.console.completer.Completer;
 import org.junit.Assert;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -39,6 +40,12 @@ public class CompleterTestBase {
       Assert.assertTrue(getCompleterFailMessage(expectedCandidates, candidates),
                         candidates.contains(expectedCandidate));
     }
+  }
+
+  protected void testOrder(Completer completer, String buffer, int cursor, List<CharSequence> expectedCandidates) {
+    List<CharSequence> candidates = Lists.newArrayList();
+    completer.complete(buffer, cursor, candidates);
+    Assert.assertEquals(candidates, expectedCandidates);
   }
 
   private String getCompleterFailMessage(List<CharSequence> expectedCandidates, List<CharSequence> candidates) {

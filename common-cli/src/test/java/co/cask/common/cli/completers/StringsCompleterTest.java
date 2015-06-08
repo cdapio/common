@@ -19,9 +19,12 @@ package co.cask.common.cli.completers;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Test for {@link StringsCompleter}.
@@ -37,9 +40,12 @@ public class StringsCompleterTest extends CompleterTestBase {
       }
     };
 
-    testCompleter(completer, "a", 0, ImmutableList.<CharSequence>of("asdf", "asdd"));
+    testCompleter(completer, "a", 0, ImmutableList.<CharSequence>of("asdd", "asdf"));
     testCompleter(completer, "b", 0, ImmutableList.<CharSequence>of("bdf"));
     testCompleter(completer, "c", 0, ImmutableList.<CharSequence>of());
+    testOrder(completer, "a", 0, ImmutableList.<CharSequence>of("asdd", "asdf"));
+
+
   }
 
 }

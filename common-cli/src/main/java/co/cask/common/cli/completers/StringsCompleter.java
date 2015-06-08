@@ -18,8 +18,11 @@ package co.cask.common.cli.completers;
 
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Completer for a set of strings.
@@ -36,13 +39,14 @@ public abstract class StringsCompleter extends AbstractCompleter {
   @Override
   protected Collection<String> getCandidates(String buffer) {
     ImmutableList.Builder<String> candidates = ImmutableList.builder();
-
+    ArrayList<String> mutableCandidates = new ArrayList<String>();
     for (String candidate : getStrings()) {
       if (candidate.startsWith(buffer)) {
-        candidates.add(candidate);
+        mutableCandidates.add(candidate);
       }
     }
-
+    Collections.sort(mutableCandidates, Ordering.usingToString());
+    candidates.addAll(mutableCandidates);
     return candidates.build();
   }
 
