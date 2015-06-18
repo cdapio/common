@@ -130,6 +130,26 @@ public class CommandSetTest {
     CommandMatch match = commandSet.findMatch("greet      user x");
     Assert.assertTrue(match.getCommand() == greetCommand);
     testCommand(match.getCommand(), match.getArguments(), "Hello x!\n");
+
+    commandSet = new CommandSet<Command>(ImmutableList.of(greetCommand));
+    match = commandSet.findMatch("greet user       x");
+    Assert.assertTrue(match.getCommand() == greetCommand);
+    testCommand(match.getCommand(), match.getArguments(), "Hello x!\n");
+
+    commandSet = new CommandSet<Command>(ImmutableList.of(greetCommand));
+    match = commandSet.findMatch("      greet user x");
+    Assert.assertTrue(match.getCommand() == greetCommand);
+    testCommand(match.getCommand(), match.getArguments(), "Hello x!\n");
+
+    commandSet = new CommandSet<Command>(ImmutableList.of(greetCommand));
+    match = commandSet.findMatch("greet user x        ");
+    Assert.assertTrue(match.getCommand() == greetCommand);
+    testCommand(match.getCommand(), match.getArguments(), "Hello x!\n");
+
+    commandSet = new CommandSet<Command>(ImmutableList.of(greetCommand));
+    match = commandSet.findMatch("        greet      user       x     ");
+    Assert.assertTrue(match.getCommand() == greetCommand);
+    testCommand(match.getCommand(), match.getArguments(), "Hello x!\n");
   }
 
   @Test
