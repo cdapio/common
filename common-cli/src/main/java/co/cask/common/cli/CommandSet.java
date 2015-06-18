@@ -106,6 +106,7 @@ public class CommandSet<T extends Command> implements Iterable<T> {
    */
   private String getMatchPattern(String pattern) {
     String mandatoryPart = pattern.replaceAll("(\\s+?)\\[.+?\\]", "($1.+?(\\\\s|\\$))*");
+    mandatoryPart = mandatoryPart.replaceAll("\\s+", "\\\\s+");
     return mandatoryPart.replaceAll("<.+?>", ".+?");
   }
 }

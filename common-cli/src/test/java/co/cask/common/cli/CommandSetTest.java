@@ -108,6 +108,31 @@ public class CommandSetTest {
   }
 
   @Test
+  public void testFindMatchWithSpaces() throws Exception {
+    Command greetCommand = new Command() {
+      @Override
+      public void execute(Arguments arguments, PrintStream output) throws Exception {
+        output.println("Hello x!");
+      }
+
+      @Override
+      public String getPattern() {
+        return "greet user x";
+      }
+
+      @Override
+      public String getDescription() {
+        return "Greets x";
+      }
+    };
+
+    CommandSet commandSet = new CommandSet<Command>(ImmutableList.of(greetCommand));
+    CommandMatch match = commandSet.findMatch("greet      user x");
+    Assert.assertTrue(match.getCommand() == greetCommand);
+    testCommand(match.getCommand(), match.getArguments(), "Hello x!\n");
+  }
+
+  @Test
   public void testFindMatchWithArguments() throws Exception {
     Command greetCommand = new Command() {
       @Override
