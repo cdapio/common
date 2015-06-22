@@ -64,10 +64,11 @@ public class CommandSet<T extends Command> implements Iterable<T> {
    * @return the matching command and the parsed arguments
    */
   public CommandMatch findMatch(String input) throws InvalidCommandException {
+    String trimmedInput = input.trim();
     for (Command command : this) {
       String pattern = getMatchPattern(command.getPattern());
-      if (input.matches(pattern)) {
-        return new CommandMatch(command, input);
+      if (trimmedInput.matches(pattern)) {
+        return new CommandMatch(command, trimmedInput);
       }
     }
 
@@ -105,7 +106,8 @@ public class CommandSet<T extends Command> implements Iterable<T> {
    * @return regular expression
    */
   private String getMatchPattern(String pattern) {
-    String mandatoryPart = pattern.replaceAll("(\\s+?)\\[.+?\\]", "($1.+?(\\\\s|\\$))*");
+    String mandatoryPart = pattern.trim().replaceAll("(\\s+?)\\[.+?\\]", "($1.+?(\\\\s|\\$))*");
+    mandatoryPart = mandatoryPart.replaceAll("\\s+", "\\\\s+");
     return mandatoryPart.replaceAll("<.+?>", ".+?");
   }
 }
