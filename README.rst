@@ -6,8 +6,8 @@ Introduction
 ============
 
 The Cask Common Libraries provide reusable modules that came out of Cask projects such as
-`CDAP <https://github.com/caskdata/cdap`__, `Coopr <https://github.com/caskdata/coopr`__, 
-and `Tigon <https://github.com/caskdata/tigon`__.
+`CDAP <https://github.com/caskdata/cdap>`__, `Coopr <https://github.com/caskdata/coopr>`__, 
+and `Tigon <https://github.com/caskdata/tigon>`__.
 
 Modules
 =======
