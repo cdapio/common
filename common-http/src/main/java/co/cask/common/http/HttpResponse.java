@@ -79,4 +79,11 @@ public class HttpResponse {
     }
     return builder.build();
   }
+
+  @Override
+  public String toString() {
+    return String.format("Response code: %s, message: '%s', body: '%s'",
+                         this.getResponseCode(), this.getResponseMessage(),
+                         this.getResponseBody() == null ? "null" : this.getResponseBodyAsString());
+  }
 }
