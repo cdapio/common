@@ -16,11 +16,11 @@
 
 package co.cask.common.cli;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
+import javax.annotation.Nullable;
 
 /**
  * Convenience class to represent a set of arguments contained within user input.
@@ -81,10 +81,40 @@ public class Arguments {
    * @param key the argument name
    * @param defaultValue the value to return if the argument is missing
    * @return the argument value
+   *
+   * @deprecated As of 0.8.0, use {@link #getOptional(String, String)}.
    */
+  @Deprecated
+  @Nullable
   public String get(String key, String defaultValue) {
+    return getOptional(key, defaultValue);
+  }
+
+  /**
+   * Gets an optional argument.
+   *
+   * @param key the argument name
+   * @param defaultValue the value to return if the argument is missing
+   * @return the argument value
+   */
+  @Nullable
+  public String getOptional(String key, String defaultValue) {
     String value = arguments.get(key);
-    return Objects.firstNonNull(value, defaultValue);
+    if (value == null) {
+      return defaultValue;
+    }
+    return value;
+  }
+
+  /**
+   * Gets an optional argument.
+   *
+   * @param key the argument name
+   * @return the argument value
+   */
+  @Nullable
+  public String getOptional(String key) {
+    return getOptional(key, null);
   }
 
   /**
@@ -104,14 +134,39 @@ public class Arguments {
    * @param key the argument name
    * @param defaultValue the value to return if the argument is missing
    * @return the argument value
+   *
+   * @deprecated As of 0.8.0, use {@link #getIntOptional(String, Integer)}.
    */
   public Integer getInt(String key, int defaultValue) {
+    return getIntOptional(key, defaultValue);
+  }
+
+  /**
+   * Gets an optional argument as an int.
+   *
+   * @param key the argument name
+   * @param defaultValue the value to return if the argument is missing
+   * @return the argument value
+   */
+  @Nullable
+  public Integer getIntOptional(String key, Integer defaultValue) {
     String value = arguments.get(key);
     if (value != null) {
       return Integer.parseInt(value);
     } else {
       return defaultValue;
     }
+  }
+
+  /**
+   * Gets an optional argument as an int.
+   *
+   * @param key the argument name
+   * @return the argument value
+   */
+  @Nullable
+  public Integer getIntOptional(String key) {
+    return getIntOptional(key, null);
   }
 
   /**
@@ -131,14 +186,39 @@ public class Arguments {
    * @param key the argument name
    * @param defaultValue the value to return if the argument is missing
    * @return the argument value
+   *
+   * @deprecated As of 0.8.0, use {@link #getLongOptional(String, Long)}.
    */
   public Long getLong(String key, long defaultValue) {
+    return getLongOptional(key, defaultValue);
+  }
+
+  /**
+   * Gets an optional argument as a long.
+   *
+   * @param key the argument name
+   * @param defaultValue the value to return if the argument is missing
+   * @return the argument value
+   */
+  @Nullable
+  public Long getLongOptional(String key, @Nullable Long defaultValue) {
     String value = arguments.get(key);
     if (value != null) {
       return Long.parseLong(value);
     } else {
       return defaultValue;
     }
+  }
+
+  /**
+   * Gets an optional argument as a long.
+   *
+   * @param key the argument name
+   * @return the argument value
+   */
+  @Nullable
+  public Long getLongOptional(String key) {
+    return getLongOptional(key, null);
   }
 
   private void checkRequiredArgument(String key) {
