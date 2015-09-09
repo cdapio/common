@@ -22,7 +22,7 @@ the License.
   <parent>
     <artifactId>common</artifactId>
     <groupId>co.cask.common</groupId>
-    <version>0.8.0-SNAPSHOT</version>
+    <version>0.8.0</version>
   </parent>
 
   <artifactId>common-cli</artifactId>
