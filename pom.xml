@@ -60,10 +60,6 @@ the License.
       <id>sonatype</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
-    <repository>
-      <id>continuuity-public</id>
-      <url>https://repository.continuuity.com/content/repositories/public</url>
-    </repository>
   </repositories>
 
   <distributionManagement>
@@ -99,7 +95,7 @@ the License.
     <jetty8.version>8.1.15.v20140411</jetty8.version>
     <jline.version>2.12</jline.version>
     <junit.version>4.11</junit.version>
-    <hbase94.version>0.94.6.1.continuuity</hbase94.version>
+    <hbase94.version>0.94.6.1.cask</hbase94.version>
     <mockito.version>1.9.5</mockito.version>
     <logback.version>1.0.9</logback.version>
     <servlet.api.version>3.0.1</servlet.api.version>
@@ -285,7 +281,7 @@ the License.
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.apache.hbase</groupId>
+        <groupId>co.cask.hbase</groupId>
         <artifactId>hbase</artifactId>
         <version>${hbase94.version}</version>
         <exclusions>
@@ -340,7 +336,7 @@ the License.
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.apache.hbase</groupId>
+        <groupId>co.cask.hbase</groupId>
         <artifactId>hbase</artifactId>
         <classifier>tests</classifier>
         <version>${hbase94.version}</version>
