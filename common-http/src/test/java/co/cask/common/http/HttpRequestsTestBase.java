@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Cask Data, Inc.
+ * Copyright © 2014-2016 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -50,17 +50,23 @@ public abstract class HttpRequestsTestBase {
 
   protected abstract HttpRequestConfig getHttpRequestsConfig();
 
+  protected abstract int getNumConnectionsOpened();
+
   @Test
   public void testHttpStatus() throws Exception {
     testGet("/fake/fake", only(404), only("Not Found"),
             only("Problem accessing: /fake/fake. Reason: Not Found"), any());
     testGet("/api/testOkWithResponse", only(200), any(), only("Great response"), any());
+
+    int numConnectionsOpened = getNumConnectionsOpened();
     testGet("/api/testOkWithResponse201", only(201), any(), only("Great response 201"), any());
     testGet("/api/testOkWithResponse202", only(202), any(), only("Great response 202"), any());
     testGet("/api/testOkWithResponse203", only(203), any(), only("Great response 203"), any());
     testGet("/api/testOkWithResponse204", only(204), any(), only(""), any());
     testGet("/api/testOkWithResponse205", only(205), any(), only("Great response 205"), any());
     testGet("/api/testOkWithResponse206", only(206), any(), only("Great response 206"), any());
+    // the preceding sequence of calls should reuse the same connection
+    Assert.assertEquals(numConnectionsOpened, getNumConnectionsOpened());
 
     // Expected headers for a request
     Multimap<String, String> expectedHeaders = ArrayListMultimap.create();

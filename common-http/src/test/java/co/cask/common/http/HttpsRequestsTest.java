@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Cask Data, Inc.
+ * Copyright © 2014-2016 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,30 +16,23 @@
 
 package co.cask.common.http;
 
-import co.cask.http.NettyHttpService;
-import com.google.common.base.Objects;
-import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.AbstractIdleService;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 
-import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 /**
  * Test for {@link HttpRequests} against HTTPS.
  */
 public class HttpsRequestsTest extends HttpRequestsTestBase {
 
-  private static TestHttpsService httpsService;
+  private static TestHttpService httpsService;
 
   @Before
   public void setUp() throws Exception {
-    httpsService = new TestHttpsService();
+    httpsService = new TestHttpService(true);
     httpsService.startAndWait();
   }
 
@@ -59,43 +52,8 @@ public class HttpsRequestsTest extends HttpRequestsTestBase {
     return new HttpRequestConfig(0, 0, false);
   }
 
-  public static final class TestHttpsService extends AbstractIdleService {
-
-    private final NettyHttpService httpService;
-
-    public TestHttpsService() throws URISyntaxException {
-      URL keystore = getClass().getClassLoader().getResource("cert.jks");
-      Assert.assertNotNull(keystore);
-
-      this.httpService = NettyHttpService.builder()
-        .setHost("localhost")
-        .addHttpHandlers(Sets.newHashSet(new TestHandler()))
-        .setWorkerThreadPoolSize(10)
-        .setExecThreadPoolSize(10)
-        .setConnectionBacklog(20000)
-        .enableSSL(new File(keystore.toURI()), "secret", "secret")
-        .build();
-    }
-
-    public InetSocketAddress getBindAddress() {
-      return httpService.getBindAddress();
-    }
-
-    @Override
-    protected void startUp() throws Exception {
-      httpService.startAndWait();
-    }
-
-    @Override
-    protected void shutDown() throws Exception {
-      httpService.stopAndWait();
-    }
-
-    @Override
-    public String toString() {
-      return Objects.toStringHelper(this)
-        .add("bindAddress", httpService.getBindAddress())
-        .toString();
-    }
+  @Override
+  protected int getNumConnectionsOpened() {
+    return httpsService.getNumConnectionsOpened();
   }
 }
