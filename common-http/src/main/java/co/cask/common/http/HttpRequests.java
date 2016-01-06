@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Cask Data, Inc.
+ * Copyright © 2014-2016 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,6 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package co.cask.common.http;
 
 import com.google.common.collect.Multimap;
@@ -104,18 +105,17 @@ public final class HttpRequests {
 
     try {
       if (bodySrc != null) {
-        OutputStream os = conn.getOutputStream();
-        try {
+        try (OutputStream os = conn.getOutputStream()) {
           ByteStreams.copy(bodySrc, os);
-        } finally {
-          os.close();
         }
       }
 
       try {
         if (isSuccessful(conn.getResponseCode())) {
-          return new HttpResponse(conn.getResponseCode(), conn.getResponseMessage(),
-                                  ByteStreams.toByteArray(conn.getInputStream()), conn.getHeaderFields());
+          try (InputStream inputStream = conn.getInputStream()) {
+            return new HttpResponse(conn.getResponseCode(), conn.getResponseMessage(),
+                                    ByteStreams.toByteArray(inputStream), conn.getHeaderFields());
+          }
         }
       } catch (FileNotFoundException e) {
         // Server returns 404. Hence handle as error flow below. Intentional having empty catch block.

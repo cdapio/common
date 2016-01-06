@@ -1,5 +1,5 @@
 /**
- * Copyright © 2012-2014 Cask Data, Inc.
+ * Copyright © 2012-2016 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -49,11 +49,8 @@ public class SSLHandlerFactory {
 
     try {
       KeyStore ks = KeyStore.getInstance(keyStoreType);
-      InputStream inputStream = new FileInputStream(keyStore);
-      try {
+      try (InputStream inputStream = new FileInputStream(keyStore)) {
         ks.load(inputStream, keyStorePassword.toCharArray());
-      } finally {
-        inputStream.close();
       }
       // Set up key manager factory to use our key store
       KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);

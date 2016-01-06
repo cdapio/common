@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 Cask Data, Inc.
+ * Copyright © 2014-2016 Cask Data, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,10 +16,6 @@
 
 package co.cask.common.http;
 
-import co.cask.http.NettyHttpService;
-import com.google.common.base.Objects;
-import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.AbstractIdleService;
 import org.junit.After;
 import org.junit.Before;
 
@@ -35,8 +31,8 @@ public class HttpRequestsTest extends HttpRequestsTestBase {
   private static TestHttpService httpService;
 
   @Before
-  public void setUp() {
-    httpService = new TestHttpService();
+  public void setUp() throws Exception {
+    httpService = new TestHttpService(false);
     httpService.startAndWait();
   }
 
@@ -56,39 +52,8 @@ public class HttpRequestsTest extends HttpRequestsTestBase {
     return HttpRequestConfig.DEFAULT;
   }
 
-  public static final class TestHttpService extends AbstractIdleService {
-
-    private final NettyHttpService httpService;
-
-    public TestHttpService() {
-      this.httpService = NettyHttpService.builder()
-        .setHost("localhost")
-        .addHttpHandlers(Sets.newHashSet(new HttpRequestsTestBase.TestHandler()))
-        .setWorkerThreadPoolSize(10)
-        .setExecThreadPoolSize(10)
-        .setConnectionBacklog(20000)
-        .build();
-    }
-
-    public InetSocketAddress getBindAddress() {
-      return httpService.getBindAddress();
-    }
-
-    @Override
-    protected void startUp() throws Exception {
-      httpService.startAndWait();
-    }
-
-    @Override
-    protected void shutDown() throws Exception {
-      httpService.stopAndWait();
-    }
-
-    @Override
-    public String toString() {
-      return Objects.toStringHelper(this)
-        .add("bindAddress", httpService.getBindAddress())
-        .toString();
-    }
+  @Override
+  protected int getNumConnectionsOpened() {
+    return httpService.getNumConnectionsOpened();
   }
 }
