@@ -40,4 +40,14 @@ public class ParserTest {
     Assert.assertEquals(9, strings.size());
   }
 
+  @Test
+  public void testEscapedSeperator() {
+    List<String> strings = Parser.parseInput("same\\ string different strings different\\  strings");
+    Assert.assertEquals("same\\ string", strings.get(0));
+    Assert.assertEquals("different", strings.get(1));
+    Assert.assertEquals("strings", strings.get(2));
+    Assert.assertEquals("different\\ ", strings.get(3));
+    Assert.assertEquals("strings", strings.get(4));
+  }
+
 }
