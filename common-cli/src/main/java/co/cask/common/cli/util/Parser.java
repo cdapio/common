@@ -71,12 +71,6 @@ public class Parser {
           if (ch == JSON_WRAPPER) {
             state = State.IN_QUOTES;
           }
-          // check for escaped seperators
-          if (ch == '\\' && i + 1 < chars.length && chars[i + 1] == SEPARATOR) {
-            ch = SEPARATOR;
-            builder.append('\\');
-            i++;
-          }
           builder.append(ch);
           break;
         case IN_DOUBLE_QUOTES:
