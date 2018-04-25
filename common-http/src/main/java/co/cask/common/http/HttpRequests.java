@@ -93,7 +93,7 @@ public final class HttpRequests {
 
     if (conn instanceof HttpsURLConnection && !requestConfig.isVerifySSLCert()) {
       // Certificate checks are disabled for HTTPS connection.
-      LOG.debug("Disabling SSL certificate check for {}", request.getURL());
+      LOG.trace("Disabling SSL certificate check for {}", request.getURL());
       try {
         disableCertCheck((HttpsURLConnection) conn);
       } catch (Exception e) {
