@@ -16,9 +16,9 @@
 
 package co.cask.common.http;
 
+import co.cask.common.ContentProvider;
 import com.google.common.collect.Multimap;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.InputSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +77,7 @@ public final class HttpRequests {
       }
     }
 
-    InputSupplier<? extends InputStream> bodySrc = request.getBody();
+    ContentProvider<? extends InputStream> bodySrc = request.getBody();
     if (bodySrc != null) {
       conn.setDoOutput(true);
       Long bodyLength = request.getBodyLength();
@@ -105,8 +105,8 @@ public final class HttpRequests {
 
     try {
       if (bodySrc != null) {
-        try (OutputStream os = conn.getOutputStream()) {
-          ByteStreams.copy(bodySrc, os);
+        try (InputStream input = bodySrc.getInput(); OutputStream os = conn.getOutputStream()) {
+          ByteStreams.copy(input, os);
         }
       }
 

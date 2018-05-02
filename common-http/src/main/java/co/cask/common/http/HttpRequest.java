@@ -13,17 +13,19 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+
 package co.cask.common.http;
 
+import co.cask.common.ContentProvider;
 import co.cask.common.io.ByteBufferInputStream;
 import com.google.common.base.Charsets;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -40,11 +42,11 @@ public class HttpRequest {
   private final HttpMethod method;
   private final URL url;
   private final Multimap<String, String> headers;
-  private final InputSupplier<? extends InputStream> body;
+  private final ContentProvider<? extends InputStream> body;
   private final Long bodyLength;
 
   public HttpRequest(HttpMethod method, URL url, @Nullable Multimap<String, String> headers,
-                     @Nullable InputSupplier<? extends InputStream> body,
+                     @Nullable ContentProvider<? extends InputStream> body,
                      @Nullable Long bodyLength) {
     this.method = method;
     this.url = url;
@@ -91,7 +93,7 @@ public class HttpRequest {
   }
 
   @Nullable
-  public InputSupplier<? extends InputStream> getBody() {
+  public ContentProvider<? extends InputStream> getBody() {
     return body;
   }
 
@@ -107,7 +109,7 @@ public class HttpRequest {
     private final HttpMethod method;
     private final URL url;
     private final Multimap<String, String> headers;
-    private InputSupplier<? extends InputStream> body;
+    private ContentProvider<? extends InputStream> body;
     private Long bodyLength;
 
     Builder(HttpMethod method, URL url) {
@@ -145,14 +147,20 @@ public class HttpRequest {
       return this;
     }
 
-    public Builder withBody(InputSupplier<? extends InputStream> body) {
+    public Builder withBody(ContentProvider<? extends InputStream> body) {
       this.body = body;
       this.bodyLength = null;
       return this;
     }
 
     public Builder withBody(File body) {
-      this.body = Files.newInputStreamSupplier(body);
+      Preconditions.checkNotNull(body);
+      this.body = new ContentProvider() {
+        @Override
+        public InputStream getInput() throws IOException {
+          return new FileInputStream(body);
+        }
+      };
       this.bodyLength = body.length();
       return this;
     }
@@ -163,16 +171,21 @@ public class HttpRequest {
 
     public Builder withBody(String body, Charset charset) {
       byte[] bytes = body.getBytes(charset);
-      this.body = ByteStreams.newInputStreamSupplier(bytes);
+      this.body = new ContentProvider<InputStream>() {
+        @Override
+        public InputStream getInput() {
+          return new ByteArrayInputStream(bytes, 0, bytes.length);
+        }
+      };
       this.bodyLength = (long) bytes.length;
       return this;
     }
 
     public Builder withBody(final ByteBuffer body) {
       final ByteBuffer duplicate = body.duplicate();
-      this.body = new InputSupplier<InputStream>() {
+      this.body = new ContentProvider<InputStream>() {
         @Override
-        public InputStream getInput() throws IOException {
+        public InputStream getInput() {
           return new ByteBufferInputStream(duplicate);
         }
       };
