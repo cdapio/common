@@ -22,6 +22,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.io.InputSupplier;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -144,6 +145,12 @@ public class HttpRequest {
           this.headers.put(entry.getKey(), entry.getValue());
         }
       }
+      return this;
+    }
+
+    public Builder withBody(InputSupplier<? extends InputStream> body) {
+      this.body = body::getInput;
+      this.bodyLength = null;
       return this;
     }
 
