@@ -149,9 +149,12 @@ public class HttpRequest {
     }
 
     public Builder withBody(InputSupplier<? extends InputStream> body) {
-      this.body = body::getInput;
-      this.bodyLength = null;
-      return this;
+      return withBody(new ContentProvider<InputStream>() {
+        @Override
+        public InputStream getInput() throws IOException {
+          return body.getInput();
+        }
+      });
     }
 
     public Builder withBody(ContentProvider<? extends InputStream> body) {
