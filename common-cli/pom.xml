@@ -21,12 +21,12 @@ the License.
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>common</artifactId>
-    <groupId>co.cask.common</groupId>
+    <groupId>io.cdap.common</groupId>
     <version>0.12.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>common-cli</artifactId>
-  <name>Cask Common Libraries: CLI</name>
+  <name>CDAP Common Libraries: CLI</name>
 
   <dependencies>
     <dependency>
