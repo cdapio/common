@@ -1,5 +1,5 @@
 ================
-Cask Common: CLI
+CDAP Common: CLI
 ================
 
 Introduction
@@ -55,8 +55,8 @@ argument value for the ``"some-input"`` argument.
 Examples
 ========
 
-* `HelloCLI <src/main/java/co/cask/common/cli/examples/HelloCLI.java>`__: the simple
+* `HelloCLI <src/main/java/io/cdap/common/cli/examples/HelloCLI.java>`__: the simple
   example presented above 
-* `NoteCLI <src/main/java/co/cask/common/cli/examples/NoteCLI.java>`__: notetaking CLI that
+* `NoteCLI <src/main/java/io/cdap/common/cli/examples/NoteCLI.java>`__: notetaking CLI that
   demonstrates usage of multiple commands and completers
 

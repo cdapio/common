@@ -19,17 +19,17 @@ the License.
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>co.cask.common</groupId>
+  <groupId>io.cdap.common</groupId>
   <artifactId>common</artifactId>
   <version>0.12.0-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>Cask Common Libraries</name>
+  <name>CDAP Common Libraries</name>
   <description>Common utilities</description>
-  <url>https://github.com/caskdata/common</url>
+  <url>https://github.com/cdapio/common</url>
 
   <organization>
-    <name>Cask</name>
-    <url>http://cask.co</url>
+    <name>CDAP</name>
+    <url>http://cdap.co</url>
   </organization>
 
   <licenses>
@@ -41,17 +41,17 @@ the License.
 
   <developers>
     <developer>
-      <name>Cask Data</name>
-      <email>cask-dev@googlegroups.com</email>
-      <organization>Cask Data, Inc.</organization>
-      <organizationUrl>http://www.cask.co</organizationUrl>
+      <name>CDAP</name>
+      <email>cdap-dev@googlegroups.com</email>
+      <organization>CDAP</organization>
+      <organizationUrl>http://cdap.io</organizationUrl>
     </developer>
   </developers>
 
   <scm>
-    <connection>scm:git:https://github.com/caskdata/common.git</connection>
-    <developerConnection>scm:git:git@github.com:caskdata/common.git</developerConnection>
-    <url>https://github.com/caskdata/common.git</url>
+    <connection>scm:git:https://github.com/cdapio/common.git</connection>
+    <developerConnection>scm:git:git@github.com:cdapio/common.git</developerConnection>
+    <url>https://github.com/cdapio/common.git</url>
     <tag>HEAD</tag>
   </scm>
 
@@ -59,6 +59,14 @@ the License.
     <repository>
       <id>sonatype</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>fail</checksumPolicy>
+      </snapshots>
     </repository>
   </repositories>
 
@@ -77,25 +85,23 @@ the License.
     <module>common-cli</module>
     <module>common-http</module>
     <module>common-io</module>
-    <module>common-config</module>
     <module>common-core</module>
-    <module>common-security</module>
     <module>common-lang</module>
   </modules>
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
     <asm.version>4.0</asm.version>
     <findbugs.jsr305.version>2.0.1</findbugs.jsr305.version>
     <geronimo.version>2.0.0</geronimo.version>
     <guava.version>13.0.1</guava.version>
     <guice.version>3.0</guice.version>
     <gson.version>2.2.4</gson.version>
-    <netty.http.version>0.4.0</netty.http.version>
+    <netty.http.version>1.2.0</netty.http.version>
     <jackson.version>1.8.8</jackson.version>
-    <jetty8.version>8.1.15.v20140411</jetty8.version>
     <jline.version>2.12</jline.version>
     <junit.version>4.11</junit.version>
-    <hbase94.version>0.94.6.1.cask</hbase94.version>
     <mockito.version>1.9.5</mockito.version>
     <logback.version>1.0.9</logback.version>
     <servlet.api.version>3.0.1</servlet.api.version>
@@ -126,7 +132,7 @@ the License.
         <version>${netty.version}</version>
       </dependency>
       <dependency>
-        <groupId>co.cask.http</groupId>
+        <groupId>io.cdap.http</groupId>
         <artifactId>netty-http</artifactId>
         <version>${netty.http.version}</version>
       </dependency>
@@ -216,31 +222,6 @@ the License.
         <version>${servlet.api.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-server</artifactId>
-        <version>${jetty8.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-security</artifactId>
-        <version>${jetty8.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-util</artifactId>
-        <version>${jetty8.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-jaspi</artifactId>
-        <version>${jetty8.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-plus</artifactId>
-        <version>${jetty8.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.geronimo.components</groupId>
         <artifactId>geronimo-jaspi</artifactId>
         <version>${geronimo.version}</version>
@@ -277,117 +258,6 @@ the License.
           <exclusion>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>co.cask.hbase</groupId>
-        <artifactId>hbase</artifactId>
-        <version>${hbase94.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jsp-2.1</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jsp-api-2.1</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>servlet-api-2.5</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.jruby</groupId>
-            <artifactId>jruby-complete</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-compiler</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-json</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>co.cask.hbase</groupId>
-        <artifactId>hbase</artifactId>
-        <classifier>tests</classifier>
-        <version>${hbase94.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jsp-2.1</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jsp-api-2.1</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>servlet-api-2.5</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.jruby</groupId>
-            <artifactId>jruby-complete</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-compiler</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>tomcat</groupId>
-            <artifactId>jasper-runtime</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-core</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-json</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -548,7 +418,7 @@ the License.
                 </links>
                 <doctitle>${project.name} ${project.version}</doctitle>
                 <bottom>
-                  <![CDATA[Copyright &#169; {currentYear} <a href="http://cask.co" target="_blank">Cask Data, Inc.</a> Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>.]]>
+                  <![CDATA[Copyright &#169; {currentYear} <a href="http://cdap.co" target="_blank">CDAP</a> Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License, Version 2.0</a>.]]>
                 </bottom>
               </configuration>
               <executions>
@@ -589,7 +459,6 @@ the License.
               <configuration>
                 <nexusUrl>https://oss.sonatype.org</nexusUrl>
                 <serverId>sonatype.release</serverId>
-                <stagingProfileId>655dc88dc770c3</stagingProfileId>
               </configuration>
             </plugin>
           </plugins>
@@ -630,25 +499,10 @@ the License.
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-javadoc-plugin</artifactId>
+              <version>3.1.0</version>
               <configuration>
                 <additionalparam>-Xdoclint:none</additionalparam>
                 <failOnError>false</failOnError>
-              </configuration>
-            </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-site-plugin</artifactId>
-              <configuration>
-                <reportPlugins>
-                  <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <configuration>
-                      <additionalparam>-Xdoclint:none</additionalparam>
-                      <failOnError>false</failOnError>
-                    </configuration>
-                  </plugin>
-                </reportPlugins>
               </configuration>
             </plugin>
           </plugins>
