@@ -21,7 +21,7 @@ the License.
 
   <groupId>io.cdap.common</groupId>
   <artifactId>common</artifactId>
-  <version>0.12.0-SNAPSHOT</version>
+  <version>0.12.0</version>
   <packaging>pom</packaging>
   <name>CDAP Common Libraries</name>
   <description>Common utilities</description>
