@@ -16,21 +16,37 @@
 package io.cdap.common.http;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Closeables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
  * Return type for http requests executed by {@link HttpResponse}
  */
 public class HttpResponse {
+  private static final Logger LOG = LoggerFactory.getLogger(HttpResponse.class);
   private final int responseCode;
   private final String responseMessage;
-  private final byte[] responseBody;
+  private byte[] responseBody;
   private final Multimap<String, String> headers;
+  private InputStream inputStream;
+  private HttpURLConnection conn;
+  private HttpContentConsumer consumer;
 
   HttpResponse(int responseCode, String responseMessage,
                byte[] responseBody, Map<String, List<String>> headers) {
@@ -43,6 +59,20 @@ public class HttpResponse {
     this.responseMessage = responseMessage;
     this.responseBody = responseBody;
     this.headers = headers;
+  }
+
+  HttpResponse(HttpURLConnection conn) throws IOException {
+    this(conn, null);
+    this.responseBody = getResponseBodyFromStream();
+  }
+
+  HttpResponse(HttpURLConnection conn, @Nullable HttpContentConsumer consumer) throws IOException {
+    this.conn = conn;
+    this.responseCode = conn.getResponseCode();
+    this.responseMessage = conn.getResponseMessage();
+    this.headers = parseHeaders(conn.getHeaderFields());
+    this.inputStream = isSuccessful(responseCode) ? conn.getInputStream() : conn.getErrorStream();
+    this.consumer = consumer;
   }
 
   public int getResponseCode() {
@@ -69,6 +99,30 @@ public class HttpResponse {
     return headers;
   }
 
+  public void consumeContent() throws IOException {
+    if (inputStream == null) {
+      conn.disconnect();
+      consumer.onFinished();
+      return;
+    }
+
+    try (ReadableByteChannel channel = Channels.newChannel(inputStream)) {
+      ByteBuffer buffer = ByteBuffer.allocate(consumer.getChunkSize());
+      while (channel.read(buffer) >= 0) {
+        // Flip the buffer for the consumer to read
+        buffer.flip();
+        boolean continueReading = consumer.onReceived(buffer);
+        buffer.clear();
+        if (!continueReading) {
+          break;
+        }
+      }
+    } finally {
+      conn.disconnect();
+      consumer.onFinished();
+    }
+  }
+
   private static Multimap<String, String> parseHeaders(Map<String, List<String>> headers) {
     ImmutableListMultimap.Builder<String, String> builder = new ImmutableListMultimap.Builder<String, String>();
     for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
@@ -78,6 +132,25 @@ public class HttpResponse {
       }
     }
     return builder.build();
+  }
+
+  private byte[] getResponseBodyFromStream() {
+    try {
+      if (inputStream == null) {
+        return new byte[0];
+      }
+      return ByteStreams.toByteArray(inputStream);
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    } finally {
+      Closeables.closeQuietly(inputStream);
+      inputStream = null;
+      conn.disconnect();
+    }
+  }
+
+  private boolean isSuccessful(int responseCode) {
+    return 200 <= responseCode && responseCode < 300;
   }
 
   @Override

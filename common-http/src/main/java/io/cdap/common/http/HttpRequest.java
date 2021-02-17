@@ -45,15 +45,23 @@ public class HttpRequest {
   private final Multimap<String, String> headers;
   private final ContentProvider<? extends InputStream> body;
   private final Long bodyLength;
+  private HttpContentConsumer consumer;
 
   public HttpRequest(HttpMethod method, URL url, @Nullable Multimap<String, String> headers,
                      @Nullable ContentProvider<? extends InputStream> body,
                      @Nullable Long bodyLength) {
+    this(method, url, headers, body, bodyLength, null);
+  }
+
+  public HttpRequest(HttpMethod method, URL url, @Nullable Multimap<String, String> headers,
+                     @Nullable ContentProvider<? extends InputStream> body,
+                     @Nullable Long bodyLength, @Nullable HttpContentConsumer consumer) {
     this.method = method;
     this.url = url;
     this.headers = headers;
     this.body = body;
     this.bodyLength = bodyLength;
+    this.consumer = consumer;
   }
 
   public static Builder get(URL url) {
@@ -103,6 +111,15 @@ public class HttpRequest {
     return bodyLength;
   }
 
+  @Nullable
+  public HttpContentConsumer getConsumer() {
+    return consumer;
+  }
+
+  public boolean hasContentConsumer() {
+    return consumer != null;
+  }
+
   /**
    * Builder for {@link HttpRequest}.
    */
@@ -112,6 +129,7 @@ public class HttpRequest {
     private final Multimap<String, String> headers;
     private ContentProvider<? extends InputStream> body;
     private Long bodyLength;
+    private HttpContentConsumer consumer;
 
     Builder(HttpMethod method, URL url) {
       this.method = method;
@@ -203,8 +221,13 @@ public class HttpRequest {
       return this;
     }
 
+    public Builder withContentConsumer(HttpContentConsumer consumer) {
+      this.consumer = consumer;
+      return this;
+    }
+
     public HttpRequest build() {
-      return new HttpRequest(method, url, headers, body, bodyLength);
+      return new HttpRequest(method, url, headers, body, bodyLength, consumer);
     }
   }
 }

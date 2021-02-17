@@ -56,4 +56,9 @@ public class HttpsRequestsTest extends HttpRequestsTestBase {
   protected int getNumConnectionsOpened() {
     return httpsService.getNumConnectionsOpened();
   }
+
+  @Override
+  protected boolean returnResponseStream() {
+    return false;
+  }
 }
