@@ -30,10 +30,15 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -42,6 +47,7 @@ import javax.ws.rs.Path;
 
 import static com.google.inject.matcher.Matchers.any;
 import static com.google.inject.matcher.Matchers.only;
+import static org.junit.Assert.fail;
 
 /**
  * Test base for {@link HttpRequests}.
@@ -53,6 +59,8 @@ public abstract class HttpRequestsTestBase {
   protected abstract HttpRequestConfig getHttpRequestsConfig();
 
   protected abstract int getNumConnectionsOpened();
+
+  protected abstract boolean returnResponseStream();
 
   @Test
   public void testHttpStatus() throws Exception {
@@ -110,14 +118,42 @@ public abstract class HttpRequestsTestBase {
     testDelete("/api/testDelete", only(200), any(), any(), any());
   }
 
+  private HttpRequest getRequest(HttpRequest.Builder builder, CompletableFuture<String> future) {
+    if (returnResponseStream()) {
+      // Set a small chunk size to verify that we're doing chunked reads correctly.
+      int chunkSize = 5;
+      StringBuilder sb = new StringBuilder();
+      return builder.withContentConsumer(new HttpContentConsumer(chunkSize) {
+        @Override
+        public boolean onReceived(ByteBuffer buffer) {
+          // create byte array with length = number of bytes written to the buffer
+          byte[] bytes = new byte[buffer.remaining()];
+          // read the bytes that were written to the buffer
+          buffer.get(bytes);
+          sb.append(new String(bytes, StandardCharsets.UTF_8));
+          return true;
+        }
+
+        @Override
+        public void onFinished() {
+          future.complete(sb.toString());
+        }
+      }).build();
+    } else {
+      return builder.build();
+    }
+  }
+
   private void testPost(String path, Map<String, String> headers, String body,
                         Matcher<Object> expectedResponseCode, Matcher<Object> expectedMessage,
                         Matcher<Object> expectedBody, Matcher<Object> expectedHeaders) throws Exception {
 
     URL url = getBaseURI().resolve(path).toURL();
-    HttpRequest request = HttpRequest.post(url).addHeaders(headers).withBody(body).build();
-    HttpResponse response = HttpRequests.execute(request, getHttpRequestsConfig());
-    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
+    CompletableFuture<String> future = new CompletableFuture<>();
+    HttpRequest request = getRequest(HttpRequest.post(url).addHeaders(headers).withBody(body), future);
+    HttpRequestConfig requestConfig = getHttpRequestsConfig();
+    HttpResponse response = HttpRequests.execute(request, requestConfig);
+    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders, future);
   }
 
   private void testPost(String path, Matcher<Object> expectedResponseCode, Matcher<Object> expectedMessage,
@@ -132,32 +168,38 @@ public abstract class HttpRequestsTestBase {
                        Matcher<Object> expectedBody, Matcher<Object> expectedHeaders) throws Exception {
 
     URL url = getBaseURI().resolve(path).toURL();
-    HttpRequest request = HttpRequest.put(url).addHeaders(headers).withBody(body).build();
-    HttpResponse response = HttpRequests.execute(request, getHttpRequestsConfig());
-    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
+    CompletableFuture<String> future = new CompletableFuture<>();
+    HttpRequest request = getRequest(HttpRequest.put(url).addHeaders(headers).withBody(body), future);
+    HttpRequestConfig requestConfig = getHttpRequestsConfig();
+    HttpResponse response = HttpRequests.execute(request, requestConfig);
+    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders, future);
   }
 
   private void testGet(String path, Matcher<Object> expectedResponseCode, Matcher<Object> expectedMessage,
                        Matcher<Object> expectedBody, Matcher<Object> expectedHeaders) throws Exception {
 
     URL url = getBaseURI().resolve(path).toURL();
-    HttpRequest request = HttpRequest.get(url).build();
-    HttpResponse response = HttpRequests.execute(request, getHttpRequestsConfig());
-    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
+    CompletableFuture<String> future = new CompletableFuture<>();
+    HttpRequest request = getRequest(HttpRequest.get(url), future);
+    HttpRequestConfig requestConfig = getHttpRequestsConfig();
+    HttpResponse response = HttpRequests.execute(request, requestConfig);
+    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders, future);
   }
 
   private void testDelete(String path, Matcher<Object> expectedResponseCode, Matcher<Object> expectedMessage,
                           Matcher<Object> expectedBody, Matcher<Object> expectedHeaders) throws Exception {
 
     URL url = getBaseURI().resolve(path).toURL();
-    HttpRequest request = HttpRequest.delete(url).build();
-    HttpResponse response = HttpRequests.execute(request, getHttpRequestsConfig());
-    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders);
+    CompletableFuture<String> future = new CompletableFuture<>();
+    HttpRequest request = getRequest(HttpRequest.delete(url), future);
+    HttpRequestConfig requestConfig = getHttpRequestsConfig();
+    HttpResponse response = HttpRequests.execute(request, requestConfig);
+    verifyResponse(response, expectedResponseCode, expectedMessage, expectedBody, expectedHeaders, future);
   }
 
   private void verifyResponse(HttpResponse response, Matcher<Object> expectedResponseCode,
                               Matcher<Object> expectedMessage, Matcher<Object> expectedBody,
-                              Matcher<Object> expectedHeaders) {
+                              Matcher<Object> expectedHeaders, CompletableFuture<String> future) {
 
     Assert.assertTrue("Response code - expected: " + expectedResponseCode.toString()
                         + " actual: " + response.getResponseCode(),
@@ -167,7 +209,17 @@ public abstract class HttpRequestsTestBase {
                         + " actual: " + response.getResponseMessage(),
                       expectedMessage.matches(response.getResponseMessage()));
 
-    String actualResponseBody = new String(response.getResponseBody());
+    String actualResponseBody = "";
+    if (!returnResponseStream()) {
+      actualResponseBody = response.getResponseBodyAsString();
+    } else {
+      try {
+        response.consumeContent();
+        actualResponseBody = future.get();
+      } catch (IOException | InterruptedException | ExecutionException e) {
+          fail("Unexpected exception");
+      }
+    }
     Assert.assertTrue("Response body - expected: " + expectedBody.toString()
                         + " actual: " + actualResponseBody,
                       expectedBody.matches(actualResponseBody));

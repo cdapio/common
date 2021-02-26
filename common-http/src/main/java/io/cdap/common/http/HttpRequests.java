@@ -22,7 +22,6 @@ import io.cdap.common.ContentProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -62,6 +61,20 @@ public final class HttpRequests {
    * @return HTTP response
    */
   public static HttpResponse execute(HttpRequest request, HttpRequestConfig requestConfig) throws IOException {
+    HttpURLConnection conn = getConnection(request, requestConfig);
+    conn.connect();
+
+    ContentProvider<? extends InputStream> bodySrc = request.getBody();
+    if (bodySrc != null) {
+      try (InputStream input = bodySrc.getInput(); OutputStream os = conn.getOutputStream()) {
+        ByteStreams.copy(input, os);
+      }
+    }
+    return request.hasContentConsumer() ? new HttpResponse(conn, request.getConsumer()) : new HttpResponse(conn);
+  }
+
+  private static HttpURLConnection getConnection(HttpRequest request, HttpRequestConfig requestConfig)
+    throws IOException {
     String requestMethod = request.getMethod().name();
     URL url = request.getURL();
 
@@ -77,8 +90,7 @@ public final class HttpRequests {
       }
     }
 
-    ContentProvider<? extends InputStream> bodySrc = request.getBody();
-    if (bodySrc != null) {
+    if (request.getBody() != null) {
       conn.setDoOutput(true);
       Long bodyLength = request.getBodyLength();
       if (bodyLength != null) {
@@ -100,34 +112,7 @@ public final class HttpRequests {
         LOG.error("Got exception while disabling SSL certificate check for {}", request.getURL());
       }
     }
-
-    conn.connect();
-
-    try {
-      if (bodySrc != null) {
-        try (InputStream input = bodySrc.getInput(); OutputStream os = conn.getOutputStream()) {
-          ByteStreams.copy(input, os);
-        }
-      }
-
-      try {
-        if (isSuccessful(conn.getResponseCode())) {
-          try (InputStream inputStream = conn.getInputStream()) {
-            return new HttpResponse(conn.getResponseCode(), conn.getResponseMessage(),
-                                    ByteStreams.toByteArray(inputStream), conn.getHeaderFields());
-          }
-        }
-      } catch (FileNotFoundException e) {
-        // Server returns 404. Hence handle as error flow below. Intentional having empty catch block.
-      }
-
-      // Non 2xx response
-      InputStream es = conn.getErrorStream();
-      byte[] content = (es == null) ? new byte[0] : ByteStreams.toByteArray(es);
-      return new HttpResponse(conn.getResponseCode(), conn.getResponseMessage(), content, conn.getHeaderFields());
-    } finally {
-      conn.disconnect();
-    }
+    return conn;
   }
 
   /**
