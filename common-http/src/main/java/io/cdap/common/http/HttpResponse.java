@@ -20,7 +20,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,9 +142,20 @@ public class HttpResponse {
     } catch (IOException e) {
       throw Throwables.propagate(e);
     } finally {
-      Closeables.closeQuietly(inputStream);
+      closeQuietly(inputStream);
       inputStream = null;
       conn.disconnect();
+    }
+  }
+
+  private void closeQuietly(@Nullable InputStream inputStream) {
+    if (inputStream == null) {
+      return;
+    }
+    try {
+      inputStream.close();
+    } catch (IOException e) {
+      LOG.warn("Failed to close input stream", e);
     }
   }
 
