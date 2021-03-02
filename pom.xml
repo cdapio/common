@@ -92,7 +92,7 @@ the License.
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <asm.version>4.0</asm.version>
+    <asm.version>7.1</asm.version>
     <findbugs.jsr305.version>2.0.1</findbugs.jsr305.version>
     <geronimo.version>2.0.0</geronimo.version>
     <guava.version>13.0.1</guava.version>
