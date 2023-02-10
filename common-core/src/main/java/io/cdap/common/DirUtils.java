@@ -35,7 +35,7 @@ public final class DirUtils {
    * Utility classes should have a public constructor or a default constructor
    * hence made it private.
    */
-  private DirUtils(){}
+  private DirUtils() {}
 
   /**
    * Wipes out all the a directory starting from a given directory.

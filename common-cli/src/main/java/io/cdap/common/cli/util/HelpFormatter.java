@@ -26,5 +26,5 @@ import java.io.PrintStream;
  */
 public interface HelpFormatter {
 
-  public void print(Iterable<Command> commands, PrintStream printStream);
+  void print(Iterable<Command> commands, PrintStream printStream);
 }

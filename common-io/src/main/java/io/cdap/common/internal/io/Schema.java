@@ -62,7 +62,7 @@ public final class Schema {
 
     private final boolean simpleType;
 
-    private Type(boolean primitive) {
+    Type(boolean primitive) {
       this.simpleType = primitive;
     }
 

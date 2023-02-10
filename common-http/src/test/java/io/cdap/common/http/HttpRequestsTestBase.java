@@ -30,6 +30,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,6 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.zip.GZIPOutputStream;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -67,6 +69,10 @@ public abstract class HttpRequestsTestBase {
     testGet("/fake/fake", only(404), only("Not Found"),
             only("Problem accessing: /fake/fake. Reason: Not Found"), any());
     testGet("/api/testOkWithResponse", only(200), any(), only("Great response"), any());
+    if (!returnResponseStream()) {
+      // We don't call getResponseBody() for streaming responses, so skip this test
+      testGet("/api/testOkWithCompressedResponse", only(200), any(), only("Great response"), any());
+    }
 
     int numConnectionsOpened = getNumConnectionsOpened();
     testGet("/api/testOkWithResponse201", only(201), any(), only("Great response 201"), any());
@@ -242,6 +248,19 @@ public abstract class HttpRequestsTestBase {
     @Path("/testOkWithResponse")
     public void testOkWithResponse(io.netty.handler.codec.http.HttpRequest request, HttpResponder responder) {
       responder.sendString(HttpResponseStatus.OK, "Great response");
+    }
+
+    @GET
+    @Path("/testOkWithCompressedResponse")
+    public void testOkWithCompressedResponse(io.netty.handler.codec.http.HttpRequest request, HttpResponder responder)
+      throws IOException {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+      try (GZIPOutputStream gzos = new GZIPOutputStream(baos)) {
+        gzos.write("Great response".getBytes(StandardCharsets.UTF_8));
+      }
+      responder.sendByteArray(HttpResponseStatus.OK, baos.toByteArray(),
+                              new DefaultHttpHeaders().set("Content-Encoding", "gzip"));
     }
 
     @GET
