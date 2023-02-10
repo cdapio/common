@@ -54,7 +54,7 @@ public class ASMDatumCodecTest {
   /**
    *
    */
-  public static enum TestEnum {
+  public enum TestEnum {
     VALUE1, VALUE2, VALUE3, VALUE4
   }
 
@@ -247,7 +247,7 @@ public class ASMDatumCodecTest {
     private List<String> list;
     private TestEnum e;
 
-    public Record(int i, String s, List<String> list, TestEnum e) {
+    Record(int i, String s, List<String> list, TestEnum e) {
       this.i = i;
       this.s = s;
       this.list = list;
