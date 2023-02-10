@@ -33,7 +33,7 @@ public class Parser {
   private static final char ARG_WRAPPER = '"';
   private static final char JSON_WRAPPER = '\'';
 
-  private static enum State {
+  private enum State {
     EMPTY, IN_QUOTES, IN_DOUBLE_QUOTES, IN_MANDATORY_ARG, IN_OPTIONAL_PART
   }
 
