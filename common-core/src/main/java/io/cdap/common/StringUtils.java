@@ -91,7 +91,9 @@ public class StringUtils {
    */
 
   public static String arrayToString(String[] strs) {
-    if (strs.length == 0) { return ""; }
+    if (strs.length == 0) {
+      return "";
+    }
     StringBuilder sbuf = new StringBuilder();
     sbuf.append(strs[0]);
     for (int idx = 1; idx < strs.length; idx++) {
@@ -106,7 +108,7 @@ public class StringUtils {
    * which can be represented by a 64-bit integer.
    * TraditionalBinaryPrefix symbol are case insensitive.
    */
-  public static enum TraditionalBinaryPrefix {
+  public enum TraditionalBinaryPrefix {
     KILO(1024),
     MEGA(KILO.value << 10),
     GIGA(MEGA.value << 10),

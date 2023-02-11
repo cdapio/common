@@ -20,9 +20,11 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.ByteStreams;
+import com.google.common.net.HttpHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -32,6 +34,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.DeflaterInputStream;
+import java.util.zip.GZIPInputStream;
 import javax.annotation.Nullable;
 
 /**
@@ -86,12 +90,44 @@ public class HttpResponse {
     return responseBody;
   }
 
+  /**
+   * Decodes and return the response body based on the content encoding.
+   */
+  public byte[] getUncompressedResponseBody() {
+    String encoding = headers.entries().stream()
+      .filter(e -> HttpHeaders.CONTENT_ENCODING.equalsIgnoreCase(e.getKey()))
+      .map(Map.Entry::getValue)
+      .findFirst()
+      .orElse(null);
+
+    if (encoding == null) {
+      return responseBody;
+    }
+
+    try {
+      if ("gzip".equalsIgnoreCase(encoding)) {
+        try (InputStream is = new GZIPInputStream(new ByteArrayInputStream(responseBody))) {
+          return ByteStreams.toByteArray(is);
+        }
+      }
+      if ("deflate".equalsIgnoreCase(encoding)) {
+        try (InputStream is = new DeflaterInputStream(new ByteArrayInputStream(responseBody))) {
+          return ByteStreams.toByteArray(is);
+        }
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException(String.format("Failed to decompress %s encoded response body", encoding), e);
+    }
+
+    throw new IllegalStateException("Unsupported content encoding " + encoding);
+  }
+
   public String getResponseBodyAsString() {
-    return new String(responseBody, Charsets.UTF_8);
+    return getResponseBodyAsString(Charsets.UTF_8);
   }
 
   public String getResponseBodyAsString(Charset charset) {
-    return new String(responseBody, charset);
+    return new String(getUncompressedResponseBody(), charset);
   }
 
   public Multimap<String, String> getHeaders() {
