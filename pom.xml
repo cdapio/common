@@ -103,7 +103,7 @@ the License.
     <jline.version>2.12</jline.version>
     <junit.version>4.11</junit.version>
     <mockito.version>1.9.5</mockito.version>
-    <logback.version>1.0.9</logback.version>
+    <logback.version>1.3.12</logback.version>
     <servlet.api.version>3.0.1</servlet.api.version>
     <slf4j.version>1.7.5</slf4j.version>
     <netty.version>4.1.75.Final</netty.version>
