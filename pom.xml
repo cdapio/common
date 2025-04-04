@@ -111,7 +111,7 @@ the License.
     <unboundid.version>2.3.6</unboundid.version>
     <resteasy.version>3.0.8.Final</resteasy.version>
     <hadoop.version>2.3.0</hadoop.version>
-    <zookeeper.version>3.4.5</zookeeper.version>
+    <zookeeper.version>3.7.2</zookeeper.version>
   </properties>
 
   <dependencyManagement>
