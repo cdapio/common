@@ -57,28 +57,26 @@ the License.
 
   <repositories>
     <repository>
-      <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <id>artifact-registry</id>
+      <url>artifactregistry:us-maven.pkg.dev/oss-exit-gate-prod/cloud-data-fusion--mavencentral</url>
       <releases>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </releases>
       <snapshots>
         <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>fail</checksumPolicy>
       </snapshots>
     </repository>
   </repositories>
 
   <distributionManagement>
-    <repository>
-      <id>sonatype.release</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-    </repository>
     <snapshotRepository>
-      <id>sonatype.snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <id>artifact-registry</id>
+      <url>artifactregistry://us-maven.pkg.dev/oss-exit-gate-prod/cloud-data-fusion--mavencentral</url>
     </snapshotRepository>
+    <repository>
+      <id>artifact-registry</id>
+      <url>artifactregistry://us-maven.pkg.dev/oss-exit-gate-prod/cloud-data-fusion--mavencentral</url>
+    </repository>
   </distributionManagement>
 
   <modules>
@@ -297,6 +295,13 @@ the License.
   </dependencyManagement>
 
   <build>
+    <extensions>
+      <extension>
+        <groupId>com.google.cloud.artifactregistry</groupId>
+        <artifactId>artifactregistry-maven-wagon</artifactId>
+        <version>2.2.5</version>
+      </extension>
+    </extensions>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -437,36 +442,6 @@ the License.
                   </goals>
                 </execution>
               </executions>
-            </plugin>
-
-            <!-- GPG signature -->
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-gpg-plugin</artifactId>
-              <version>1.5</version>
-              <configuration>
-                <passphrase>${gpg.passphrase}</passphrase>
-                <useAgent>${gpg.useagent}</useAgent>
-              </configuration>
-              <executions>
-                <execution>
-                  <goals>
-                    <goal>sign</goal>
-                  </goals>
-                </execution>
-              </executions>
-            </plugin>
-
-            <!-- Nexus deploy plugin -->
-            <plugin>
-              <groupId>org.sonatype.plugins</groupId>
-              <artifactId>nexus-staging-maven-plugin</artifactId>
-              <version>1.6.2</version>
-              <extensions>true</extensions>
-              <configuration>
-                <nexusUrl>https://oss.sonatype.org</nexusUrl>
-                <serverId>sonatype.release</serverId>
-              </configuration>
             </plugin>
           </plugins>
         </pluginManagement>
