@@ -16,6 +16,7 @@
 
 package io.cdap.common.lang;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 import javax.annotation.Nullable;
@@ -39,7 +40,7 @@ public final class ClassLoaders {
    */
   public static Class<?> loadClass(String className, @Nullable ClassLoader classLoader,
                                    Object caller) throws ClassNotFoundException {
-    ClassLoader cl = Objects.firstNonNull(classLoader, caller.getClass().getClassLoader());
+    ClassLoader cl = MoreObjects.firstNonNull(classLoader, caller.getClass().getClassLoader());
     return cl.loadClass(className);
   }
 

@@ -16,7 +16,7 @@
 
 package io.cdap.common.http;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.AbstractIdleService;
 import io.cdap.http.ChannelPipelineModifier;
 import io.cdap.http.NettyHttpService;
@@ -24,13 +24,12 @@ import io.cdap.http.SSLConfig;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
-import org.junit.Assert;
-
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.Assert;
 
 /**
  * Service for testing {@link HttpRequests}.
@@ -90,7 +89,7 @@ public final class TestHttpService extends AbstractIdleService {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("bindAddress", httpService.getBindAddress())
       .toString();
   }
