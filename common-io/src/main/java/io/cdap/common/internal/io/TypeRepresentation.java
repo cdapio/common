@@ -16,6 +16,7 @@
 
 package io.cdap.common.internal.io;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 import java.lang.reflect.ParameterizedType;
@@ -117,8 +118,8 @@ public final class TypeRepresentation implements ParameterizedType {
   @Override
   public Type getRawType() {
     try {
-      ClassLoader cl = Objects.firstNonNull(classLoader,
-                                            Objects.firstNonNull(Thread.currentThread().getContextClassLoader(),
+      ClassLoader cl = MoreObjects.firstNonNull(classLoader,
+                                            MoreObjects.firstNonNull(Thread.currentThread().getContextClassLoader(),
                                                                  getClass().getClassLoader()));
       return cl.loadClass(this.rawType);
     } catch (ClassNotFoundException e) {

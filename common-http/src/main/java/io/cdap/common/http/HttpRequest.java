@@ -20,10 +20,9 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.io.InputSupplier;
+import com.google.common.io.ByteSource;
 import io.cdap.common.ContentProvider;
 import io.cdap.common.io.ByteBufferInputStream;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -166,11 +165,11 @@ public class HttpRequest {
       return this;
     }
 
-    public Builder withBody(InputSupplier<? extends InputStream> body) {
+    public Builder withBody(ByteSource body) {
       return withBody(new ContentProvider<InputStream>() {
         @Override
         public InputStream getInput() throws IOException {
-          return body.getInput();
+          return body.openStream();
         }
       });
     }
