@@ -16,7 +16,6 @@
 
 package io.cdap.common.lang;
 
-import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -102,7 +101,7 @@ public final class InstantiatorFactory {
           try {
             return (T) defaultCons.newInstance();
           } catch (Exception e) {
-            throw Throwables.propagate(e);
+            throw new RuntimeException(e);
           }
         }
       };
@@ -183,7 +182,7 @@ public final class InstantiatorFactory {
           Reflections.visit(instance, type, new FieldInitializer());
           return (T) instance;
         } catch (InstantiationException e) {
-          throw Throwables.propagate(e);
+          throw new RuntimeException(e);
         }
       }
     };

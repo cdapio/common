@@ -16,8 +16,9 @@
 
 package io.cdap.common.internal.io;
 
-import com.google.common.base.Objects;
 import com.google.common.reflect.TypeToken;
+
+import java.util.Objects;
 
 /**
 *
@@ -54,6 +55,6 @@ final class FieldEntry {
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(type, fieldName);
+    return Objects.hash(type, fieldName);
   }
 }
