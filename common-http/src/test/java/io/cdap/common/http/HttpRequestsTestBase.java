@@ -85,8 +85,8 @@ public abstract class HttpRequestsTestBase {
 
     // Expected headers for a request
     Multimap<String, String> expectedHeaders = ArrayListMultimap.create();
-    expectedHeaders.put("headerKey", "headerValue1");
     expectedHeaders.put("headerKey", "headerValue2");
+    expectedHeaders.put("headerKey", "headerValue1");
     expectedHeaders.put(HttpHeaderNames.CONTENT_LENGTH.toString(), "0");
     testGet("/api/testOkWithHeaders", only(200), only("OK"), only(""), only(expectedHeaders));
 
