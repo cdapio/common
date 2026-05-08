@@ -17,7 +17,6 @@
 package io.cdap.common.internal.io;
 
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -60,7 +59,7 @@ public final class ReflectionFieldAccessorFactory implements FieldAccessorFactor
             try {
               finalField.set(object, value);
             } catch (Exception e) {
-              throw Throwables.propagate(e);
+              throw new RuntimeException(e);
             }
           }
 
@@ -70,7 +69,7 @@ public final class ReflectionFieldAccessorFactory implements FieldAccessorFactor
             try {
               return (T) finalField.get(object);
             } catch (Exception e) {
-              throw Throwables.propagate(e);
+              throw new RuntimeException(e);
             }
           }
 

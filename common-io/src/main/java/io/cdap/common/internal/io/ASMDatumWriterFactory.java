@@ -16,8 +16,6 @@
 
 package io.cdap.common.internal.io;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -27,6 +25,7 @@ import io.cdap.common.internal.asm.ByteCodeClassLoader;
 import io.cdap.common.internal.asm.ClassDefinition;
 
 import java.util.Map;
+import java.util.Objects;
 import javax.inject.Inject;
 
 /**
@@ -61,7 +60,7 @@ public final class ASMDatumWriterFactory implements DatumWriterFactory {
       return (DatumWriter<T>) writerClass.getConstructor(Schema.class, FieldAccessorFactory.class)
                                         .newInstance(schema, fieldAccessorFactory);
     } catch (Exception e) {
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -121,7 +120,7 @@ public final class ASMDatumWriterFactory implements DatumWriterFactory {
 
     @Override
     public int hashCode() {
-      return Objects.hashCode(schema, type);
+      return Objects.hash(schema, type);
     }
   }
 }

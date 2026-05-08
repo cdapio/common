@@ -16,11 +16,9 @@
 
 package io.cdap.common.http;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.io.InputSupplier;
 import io.cdap.common.ContentProvider;
 import io.cdap.common.io.ByteBufferInputStream;
 
@@ -32,6 +30,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -166,15 +165,6 @@ public class HttpRequest {
       return this;
     }
 
-    public Builder withBody(InputSupplier<? extends InputStream> body) {
-      return withBody(new ContentProvider<InputStream>() {
-        @Override
-        public InputStream getInput() throws IOException {
-          return body.getInput();
-        }
-      });
-    }
-
     public Builder withBody(ContentProvider<? extends InputStream> body) {
       this.body = body;
       this.bodyLength = null;
@@ -194,7 +184,7 @@ public class HttpRequest {
     }
 
     public Builder withBody(String body) {
-      return withBody(body, Charsets.UTF_8);
+      return withBody(body, StandardCharsets.UTF_8);
     }
 
     public Builder withBody(String body, Charset charset) {
