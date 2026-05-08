@@ -117,7 +117,8 @@ final class FieldAccessorGenerator {
 
        this.field = field;
      } catch (Exception e) {
-       throw Throwables.propagate(e);
+       Throwables.throwIfUnchecked(e);
+       throw new RuntimeException(e);
      }
     */
     Label beginTry = mg.newLabel();
@@ -149,7 +150,13 @@ final class FieldAccessorGenerator {
     mg.storeLocal(exception);
     mg.loadLocal(exception);
     mg.invokeStatic(Type.getType(Throwables.class),
-                    getMethod(RuntimeException.class, "propagate", Throwable.class));
+                    getMethod(void.class, "throwIfUnchecked", Throwable.class));
+    mg.loadLocal(exception);
+    mg.newInstance(Type.getType(RuntimeException.class));
+    mg.dupX1();
+    mg.swap();
+    mg.invokeConstructor(Type.getType(RuntimeException.class),
+                         getMethod(void.class, "<init>", Throwable.class));
     mg.throwException();
     mg.mark(endCatch);
   }
@@ -196,7 +203,8 @@ final class FieldAccessorGenerator {
      * try {
      *   // Call method
      * } catch (IllegalAccessException e) {
-     *   throw Throwables.propagate(e);
+     *   Throwables.throwIfUnchecked(e);
+     *   throw new RuntimeException(e);
      * }
      */
     Label beginTry = mg.newLabel();
@@ -215,7 +223,13 @@ final class FieldAccessorGenerator {
     mg.storeLocal(exception);
     mg.loadLocal(exception);
     mg.invokeStatic(Type.getType(Throwables.class),
-                    getMethod(RuntimeException.class, "propagate", Throwable.class));
+                    getMethod(void.class, "throwIfUnchecked", Throwable.class));
+    mg.loadLocal(exception);
+    mg.newInstance(Type.getType(RuntimeException.class));
+    mg.dupX1();
+    mg.swap();
+    mg.invokeConstructor(Type.getType(RuntimeException.class),
+                         getMethod(void.class, "<init>", Throwable.class));
     mg.throwException();
     mg.endMethod();
 

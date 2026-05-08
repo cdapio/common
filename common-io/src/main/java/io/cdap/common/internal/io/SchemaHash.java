@@ -16,11 +16,11 @@
 
 package io.cdap.common.internal.io;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -93,7 +93,8 @@ public final class SchemaHash {
       MessageDigest md5 = updateHash(MessageDigest.getInstance("MD5"), schema, knownRecords);
       return md5.digest();
     } catch (NoSuchAlgorithmException e) {
-      throw Throwables.propagate(e);
+      Throwables.throwIfUnchecked(e);
+      throw new RuntimeException(e);
     }
   }
 
@@ -135,7 +136,7 @@ public final class SchemaHash {
       case ENUM:
         md5.update((byte) 8);
         for (String value : schema.getEnumValues()) {
-          md5.update(Charsets.UTF_8.encode(value));
+          md5.update(StandardCharsets.UTF_8.encode(value));
         }
         break;
       case ARRAY:
@@ -151,7 +152,7 @@ public final class SchemaHash {
         md5.update((byte) 11);
         boolean notKnown = knownRecords.add(schema.getRecordName());
         for (Schema.Field field : schema.getFields()) {
-          md5.update(Charsets.UTF_8.encode(field.getName()));
+          md5.update(StandardCharsets.UTF_8.encode(field.getName()));
           if (notKnown) {
             updateHash(md5, field.getSchema(), knownRecords);
           }

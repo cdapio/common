@@ -15,10 +15,10 @@
  */
 package io.cdap.common;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSortedMap;
 
 import java.io.DataOutput;
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
@@ -208,7 +208,7 @@ public class Bytes {
       return null;
     }
     buf.mark();
-    String s = Charsets.UTF_8.decode(buf).toString();
+    String s = StandardCharsets.UTF_8.decode(buf).toString();
     buf.reset();
     return s;
   }

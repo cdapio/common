@@ -33,12 +33,12 @@ public class HttpRequestsTest extends HttpRequestsTestBase {
   @Before
   public void setUp() throws Exception {
     httpService = new TestHttpService(false);
-    httpService.startAndWait();
+    httpService.startAsync().awaitRunning();
   }
 
   @After
   public void tearDown() {
-    httpService.stopAndWait();
+    httpService.stopAsync().awaitTerminated();
   }
 
   @Override
