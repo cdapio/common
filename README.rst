@@ -7,6 +7,8 @@ Introduction
 
 The CDAP Common Libraries provide reusable modules that came out of CDAP projects.
 
+This repository hosts shared libraries used across CDAP components.
+
 Modules
 =======
 
