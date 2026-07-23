@@ -15,7 +15,6 @@
  */
 package io.cdap.common.http;
 
-import com.google.common.base.Charsets;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
@@ -30,6 +29,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.charset.StandardCharsets;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -123,7 +123,7 @@ public class HttpResponse {
   }
 
   public String getResponseBodyAsString() {
-    return getResponseBodyAsString(Charsets.UTF_8);
+    return getResponseBodyAsString(StandardCharsets.UTF_8);
   }
 
   public String getResponseBodyAsString(Charset charset) {
@@ -176,7 +176,8 @@ public class HttpResponse {
       }
       return ByteStreams.toByteArray(inputStream);
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      Throwables.throwIfUnchecked(e);
+      throw new RuntimeException(e);
     } finally {
       closeQuietly(inputStream);
       inputStream = null;
