@@ -16,7 +16,6 @@
 
 package io.cdap.common.internal.io;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 
 import java.nio.ByteBuffer;
@@ -93,7 +92,6 @@ public final class SchemaHash {
       MessageDigest md5 = updateHash(MessageDigest.getInstance("MD5"), schema, knownRecords);
       return md5.digest();
     } catch (NoSuchAlgorithmException e) {
-      Throwables.throwIfUnchecked(e);
       throw new RuntimeException(e);
     }
   }

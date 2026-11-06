@@ -15,7 +15,6 @@
  */
 package io.cdap.common.http;
 
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.ByteStreams;
@@ -176,7 +175,6 @@ public class HttpResponse {
       }
       return ByteStreams.toByteArray(inputStream);
     } catch (IOException e) {
-      Throwables.throwIfUnchecked(e);
       throw new RuntimeException(e);
     } finally {
       closeQuietly(inputStream);

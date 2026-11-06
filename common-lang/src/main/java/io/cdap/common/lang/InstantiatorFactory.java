@@ -184,7 +184,6 @@ public final class InstantiatorFactory {
           Reflections.visit(instance, type, new FieldInitializer());
           return (T) instance;
         } catch (InstantiationException e) {
-          Throwables.throwIfUnchecked(e);
           throw new RuntimeException(e);
         }
       }

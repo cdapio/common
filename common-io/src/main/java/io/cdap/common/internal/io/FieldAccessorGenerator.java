@@ -16,7 +16,6 @@
 
 package io.cdap.common.internal.io;
 
-import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
 import io.cdap.common.internal.asm.ClassDefinition;
 import io.cdap.common.internal.asm.Methods;
@@ -117,7 +116,6 @@ final class FieldAccessorGenerator {
 
        this.field = field;
      } catch (Exception e) {
-       Throwables.throwIfUnchecked(e);
        throw new RuntimeException(e);
      }
     */
@@ -148,13 +146,9 @@ final class FieldAccessorGenerator {
     mg.mark(catchHandle);
     int exception = mg.newLocal(Type.getType(IllegalAccessException.class));
     mg.storeLocal(exception);
-    mg.loadLocal(exception);
-    mg.invokeStatic(Type.getType(Throwables.class),
-                    getMethod(void.class, "throwIfUnchecked", Throwable.class));
-    mg.loadLocal(exception);
     mg.newInstance(Type.getType(RuntimeException.class));
-    mg.dupX1();
-    mg.swap();
+    mg.dup();
+    mg.loadLocal(exception);
     mg.invokeConstructor(Type.getType(RuntimeException.class),
                          getMethod(void.class, "<init>", Throwable.class));
     mg.throwException();
@@ -203,7 +197,6 @@ final class FieldAccessorGenerator {
      * try {
      *   // Call method
      * } catch (IllegalAccessException e) {
-     *   Throwables.throwIfUnchecked(e);
      *   throw new RuntimeException(e);
      * }
      */
@@ -221,13 +214,9 @@ final class FieldAccessorGenerator {
     mg.mark(catchHandle);
     int exception = mg.newLocal(Type.getType(IllegalAccessException.class));
     mg.storeLocal(exception);
-    mg.loadLocal(exception);
-    mg.invokeStatic(Type.getType(Throwables.class),
-                    getMethod(void.class, "throwIfUnchecked", Throwable.class));
-    mg.loadLocal(exception);
     mg.newInstance(Type.getType(RuntimeException.class));
-    mg.dupX1();
-    mg.swap();
+    mg.dup();
+    mg.loadLocal(exception);
     mg.invokeConstructor(Type.getType(RuntimeException.class),
                          getMethod(void.class, "<init>", Throwable.class));
     mg.throwException();
