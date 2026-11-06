@@ -15,9 +15,7 @@
  */
 
 package io.cdap.common.internal.io;
-
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableBiMap;
@@ -67,8 +65,8 @@ public final class Schema {
     }
 
     /**
-     * @return true if this enum represents a simple schema type.
-     */
+      * @return true if this enum represents a simple schema type.
+      */
     public boolean isSimpleType() {
       return simpleType;
     }
@@ -82,12 +80,12 @@ public final class Schema {
     private final Schema schema;
 
     /**
-     * Creates a {@link Field} instance with the given name and {@link Schema}.
-     *
-     * @param name Name of the field.
-     * @param schema Schema of the field.
-     * @return A new {@link Field} instance.
-     */
+      * Creates a {@link Field} instance with the given name and {@link Schema}.
+      *
+      * @param name Name of the field.
+      * @param schema Schema of the field.
+      * @return A new {@link Field} instance.
+      */
     public static Field of(String name, Schema schema) {
       return new Field(name, schema);
     }
@@ -98,15 +96,15 @@ public final class Schema {
     }
 
     /**
-     * @return Name of the field.
-     */
+      * @return Name of the field.
+      */
     public String getName() {
       return name;
     }
 
     /**
-     * @return Schema of the field.
-     */
+      * @return Schema of the field.
+      */
     public Schema getSchema() {
       return schema;
     }
@@ -640,7 +638,7 @@ public final class Schema {
       return builder.toString();
     } catch (IOException e) {
       // It should never throw IOException on the StringBuilder Writer, if it does, something very wrong.
-      throw Throwables.propagate(e);
+      throw new RuntimeException(e);
     }
   }
 }

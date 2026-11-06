@@ -15,11 +15,11 @@
  */
 package io.cdap.common.http;
 
-import com.google.common.base.Charsets;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Convenient wrapper of {@link HttpResponse} that makes client code cleaner when dealing with java object that can be
@@ -35,7 +35,7 @@ public final class ObjectResponse<T> extends HttpResponse {
   @SuppressWarnings("unchecked")
   public static <T> ObjectResponse<T> fromJsonBody(HttpResponse response, Type typeOfObject, Gson gson) {
     T object = response.getResponseBody() == null ?
-      null : (T) gson.fromJson(new String(response.getResponseBody(), Charsets.UTF_8), typeOfObject);
+      null : (T) gson.fromJson(new String(response.getResponseBody(), StandardCharsets.UTF_8), typeOfObject);
     return new ObjectResponse<T>(response, object);
   }
 
