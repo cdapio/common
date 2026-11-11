@@ -18,12 +18,12 @@ package io.cdap.common;
 import com.google.common.collect.ImmutableSortedMap;
 
 import java.io.DataOutput;
-import java.nio.charset.StandardCharsets;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;

@@ -17,12 +17,12 @@
 package io.cdap.common;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utility class to provide methods for common network related operations.
