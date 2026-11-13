@@ -21,6 +21,10 @@ on:
     branches: [ develop, release/** ]
     types: [opened, synchronize, reopened, labeled]
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   build:
     runs-on: k8s-runner-build
