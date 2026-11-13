@@ -16,14 +16,13 @@
 
 package io.cdap.common;
 
-import com.google.common.base.Charsets;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utility class to provide methods for common network related operations.
@@ -93,6 +92,6 @@ public final class Networks {
     name = name.replace(':', '_');
     name = name.replace('/', '_');
 
-    return URLEncoder.encode(name, Charsets.UTF_8.name());
+    return URLEncoder.encode(name, StandardCharsets.UTF_8.name());
   }
 }

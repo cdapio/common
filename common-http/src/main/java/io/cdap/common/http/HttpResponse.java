@@ -15,8 +15,6 @@
  */
 package io.cdap.common.http;
 
-import com.google.common.base.Charsets;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.ByteStreams;
@@ -27,11 +25,13 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.DeflaterInputStream;
@@ -123,7 +123,7 @@ public class HttpResponse {
   }
 
   public String getResponseBodyAsString() {
-    return getResponseBodyAsString(Charsets.UTF_8);
+    return getResponseBodyAsString(StandardCharsets.UTF_8);
   }
 
   public String getResponseBodyAsString(Charset charset) {
@@ -176,7 +176,7 @@ public class HttpResponse {
       }
       return ByteStreams.toByteArray(inputStream);
     } catch (IOException e) {
-      throw Throwables.propagate(e);
+      throw new UncheckedIOException(e);
     } finally {
       closeQuietly(inputStream);
       inputStream = null;

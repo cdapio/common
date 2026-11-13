@@ -15,7 +15,6 @@
  */
 package io.cdap.common;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSortedMap;
 
 import java.io.DataOutput;
@@ -24,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -208,7 +208,7 @@ public class Bytes {
       return null;
     }
     buf.mark();
-    String s = Charsets.UTF_8.decode(buf).toString();
+    String s = StandardCharsets.UTF_8.decode(buf).toString();
     buf.reset();
     return s;
   }

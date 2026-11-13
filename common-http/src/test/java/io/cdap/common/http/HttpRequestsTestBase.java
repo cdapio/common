@@ -16,7 +16,6 @@
 
 package io.cdap.common.http;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
@@ -409,14 +408,14 @@ public abstract class HttpRequestsTestBase {
     public void testPost(FullHttpRequest request,
                          HttpResponder responder) {
       responder.sendString(HttpResponseStatus.OK,
-                           request.content().toString(Charsets.UTF_8) + request.headers().get("sdf"));
+                           request.content().toString(StandardCharsets.UTF_8) + request.headers().get("sdf"));
     }
 
     @POST
     @Path("/testPost409")
     public void testPost409(FullHttpRequest request,
                             HttpResponder responder) {
-      responder.sendString(HttpResponseStatus.CONFLICT, request.content().toString(Charsets.UTF_8)
+      responder.sendString(HttpResponseStatus.CONFLICT, request.content().toString(StandardCharsets.UTF_8)
         + request.headers().get("sdf") + "409");
     }
 
@@ -424,7 +423,7 @@ public abstract class HttpRequestsTestBase {
     @Path("/testPut")
     public void testPut(FullHttpRequest request,
                         HttpResponder responder) {
-      responder.sendString(HttpResponseStatus.OK, request.content().toString(Charsets.UTF_8)
+      responder.sendString(HttpResponseStatus.OK, request.content().toString(StandardCharsets.UTF_8)
         + request.headers().get("sdf"));
     }
 
@@ -432,7 +431,7 @@ public abstract class HttpRequestsTestBase {
     @Path("/testPut409")
     public void testPut409(FullHttpRequest request,
                            HttpResponder responder) {
-      responder.sendString(HttpResponseStatus.CONFLICT, request.content().toString(Charsets.UTF_8)
+      responder.sendString(HttpResponseStatus.CONFLICT, request.content().toString(StandardCharsets.UTF_8)
         + request.headers().get("sdf") + "409");
     }
 
