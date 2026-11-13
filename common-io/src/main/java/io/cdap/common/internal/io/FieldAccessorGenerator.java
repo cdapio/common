@@ -16,7 +16,6 @@
 
 package io.cdap.common.internal.io;
 
-import com.google.common.base.Throwables;
 import com.google.common.reflect.TypeToken;
 import io.cdap.common.internal.asm.ClassDefinition;
 import io.cdap.common.internal.asm.Methods;
@@ -117,7 +116,7 @@ final class FieldAccessorGenerator {
 
        this.field = field;
      } catch (Exception e) {
-       throw Throwables.propagate(e);
+       throw new RuntimeException(e);
      }
     */
     Label beginTry = mg.newLabel();
@@ -147,9 +146,11 @@ final class FieldAccessorGenerator {
     mg.mark(catchHandle);
     int exception = mg.newLocal(Type.getType(IllegalAccessException.class));
     mg.storeLocal(exception);
+    mg.newInstance(Type.getType(RuntimeException.class));
+    mg.dup();
     mg.loadLocal(exception);
-    mg.invokeStatic(Type.getType(Throwables.class),
-                    getMethod(RuntimeException.class, "propagate", Throwable.class));
+    mg.invokeConstructor(Type.getType(RuntimeException.class),
+                         getMethod(void.class, "<init>", Throwable.class));
     mg.throwException();
     mg.mark(endCatch);
   }
@@ -196,7 +197,7 @@ final class FieldAccessorGenerator {
      * try {
      *   // Call method
      * } catch (IllegalAccessException e) {
-     *   throw Throwables.propagate(e);
+     *   throw new RuntimeException(e);
      * }
      */
     Label beginTry = mg.newLabel();
@@ -213,9 +214,11 @@ final class FieldAccessorGenerator {
     mg.mark(catchHandle);
     int exception = mg.newLocal(Type.getType(IllegalAccessException.class));
     mg.storeLocal(exception);
+    mg.newInstance(Type.getType(RuntimeException.class));
+    mg.dup();
     mg.loadLocal(exception);
-    mg.invokeStatic(Type.getType(Throwables.class),
-                    getMethod(RuntimeException.class, "propagate", Throwable.class));
+    mg.invokeConstructor(Type.getType(RuntimeException.class),
+                         getMethod(void.class, "<init>", Throwable.class));
     mg.throwException();
     mg.endMethod();
 

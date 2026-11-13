@@ -16,12 +16,11 @@
 
 package io.cdap.common.io;
 
-import com.google.common.base.Charsets;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * An {@link Decoder} for binary-format data.
@@ -88,7 +87,7 @@ public final class BinaryDecoder implements Decoder {
 
   @Override
   public String readString() throws IOException {
-    return new String(rawReadBytes(), Charsets.UTF_8);
+    return new String(rawReadBytes(), StandardCharsets.UTF_8);
   }
 
   @Override
