@@ -55,32 +55,6 @@ the License.
     <tag>HEAD</tag>
   </scm>
 
-  <repositories>
-    <repository>
-      <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>fail</checksumPolicy>
-      </snapshots>
-    </repository>
-  </repositories>
-
-  <distributionManagement>
-    <repository>
-      <id>sonatype.release</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-    </repository>
-    <snapshotRepository>
-      <id>sonatype.snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <modules>
     <module>common-cli</module>
     <module>common-http</module>
@@ -457,15 +431,16 @@ the License.
               </executions>
             </plugin>
 
-            <!-- Nexus deploy plugin -->
+            <!-- Central publishing plugin -->
             <plugin>
-              <groupId>org.sonatype.plugins</groupId>
-              <artifactId>nexus-staging-maven-plugin</artifactId>
-              <version>1.6.2</version>
+              <groupId>org.sonatype.central</groupId>
+              <artifactId>central-publishing-maven-plugin</artifactId>
+              <version>0.8.0</version>
               <extensions>true</extensions>
               <configuration>
-                <nexusUrl>https://oss.sonatype.org</nexusUrl>
-                <serverId>sonatype.release</serverId>
+                <publishingServerId>sonatype.release</publishingServerId>
+                <autoPublish>false</autoPublish>
+                <ignorePublishedComponents>true</ignorePublishedComponents>
               </configuration>
             </plugin>
           </plugins>
@@ -488,9 +463,9 @@ the License.
             <version>1.5</version>
           </plugin>
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.2</version>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <extensions>true</extensions>
           </plugin>
         </plugins>
       </build>
