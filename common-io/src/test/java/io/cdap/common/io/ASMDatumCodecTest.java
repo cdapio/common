@@ -16,7 +16,6 @@
 
 package io.cdap.common.io;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -40,6 +39,7 @@ import java.io.PipedOutputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -270,7 +270,7 @@ public class ASMDatumCodecTest {
 
     @Override
     public int hashCode() {
-      return Objects.hashCode(i, s, list, e);
+      return Objects.hash(i, s, list, e);
     }
   }
 
@@ -356,7 +356,7 @@ public class ASMDatumCodecTest {
 
     @Override
     public int hashCode() {
-      return Objects.hashCode(data, left, right);
+      return Objects.hash(data, left, right);
     }
   }
 
