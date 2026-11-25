@@ -22,7 +22,7 @@ the License.
   <parent>
     <artifactId>common</artifactId>
     <groupId>io.cdap.common</groupId>
-    <version>0.13.2</version>
+    <version>0.13.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>common-cli</artifactId>
