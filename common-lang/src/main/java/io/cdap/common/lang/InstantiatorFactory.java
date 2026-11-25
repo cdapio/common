@@ -102,7 +102,8 @@ public final class InstantiatorFactory {
           try {
             return (T) defaultCons.newInstance();
           } catch (Exception e) {
-            throw Throwables.propagate(e);
+            Throwables.throwIfUnchecked(e);
+            throw new RuntimeException(e);
           }
         }
       };
@@ -183,7 +184,7 @@ public final class InstantiatorFactory {
           Reflections.visit(instance, type, new FieldInitializer());
           return (T) instance;
         } catch (InstantiationException e) {
-          throw Throwables.propagate(e);
+          throw new RuntimeException(e);
         }
       }
     };
