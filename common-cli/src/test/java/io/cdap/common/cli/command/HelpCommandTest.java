@@ -17,7 +17,6 @@
 
 package io.cdap.common.cli.command;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import io.cdap.common.cli.Arguments;
 import io.cdap.common.cli.Command;
@@ -28,6 +27,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Tests for {@link HelpCommand}
@@ -155,7 +155,7 @@ public class HelpCommandTest {
     PrintStream printStream = new PrintStream(outputStream);
     command.execute(args, printStream);
 
-    String output = new String(outputStream.toByteArray(), Charsets.UTF_8);
+    String output = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
     Assert.assertEquals(expectedOutput, output);
   }
 }

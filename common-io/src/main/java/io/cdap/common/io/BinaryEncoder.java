@@ -16,11 +16,10 @@
 
 package io.cdap.common.io;
 
-import com.google.common.base.Charsets;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /**
  *  An {@link Encoder} for binary-format data.
@@ -112,7 +111,7 @@ public final class BinaryEncoder implements Encoder {
 
   @Override
   public Encoder writeString(String s) throws IOException {
-    return writeBytes(Charsets.UTF_8.encode(s));
+    return writeBytes(StandardCharsets.UTF_8.encode(s));
   }
 
   @Override
